@@ -1,0 +1,27 @@
+CREATE TABLE IF NOT EXISTS EVENT_TABLE (
+    Event_ID INTEGER PRIMARY KEY,
+    Event_Name VARCHAR(100),
+    Venue VARCHAR(100),
+    Event_Start_Time TIME,
+    Event_End_Time TIME,
+    Event_Start_Date DATE,
+    Event_End_Date DATE,
+    Event_Location VARCHAR(100),
+    Avaialable_Seats INTEGER,
+    Event_Status VARCHAR(50),
+    Event_Discription VARCHAR(300),
+    Event_Budget INTEGER,
+    Event_Host VARCHAR(100),
+);
+
+CREATE TABLE IF NOT EXISTS USER_TABLE (
+    ID INTEGER PRIMARY KEY,
+    USERNAME VARCHAR(100),
+    PASS VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS MEDIA_TABLE (
+    ID INTEGER PRIMARY KEY,
+    MEDIA_NAME VARCHAR(100),
+    MEDIA_TYPE VARCHAR(50)
+);
