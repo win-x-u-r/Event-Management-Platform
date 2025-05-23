@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS EVENT_TABLE (
     Event_Location VARCHAR(100),
     Avaialable_Seats INTEGER,
     Event_Status VARCHAR(50),
-    Event_Discription VARCHAR(300),
-    Event_Host VARCHAR(100),
+    Event_Discription TEXT,
+    Event_Host VARCHAR(100)
     -- Budget_ID INTEGER FOREIGN KEY REFERENCES BUDGET_TABLE(Budget_ID),
 );
 
@@ -20,11 +20,13 @@ CREATE TABLE IF NOT EXISTS USER_TABLE (
     User_Last_Name VARCHAR(50),
     User_Department VARCHAR(100),
     User_Role VARCHAR(20),
-    
 );
 
 CREATE TABLE IF NOT EXISTS MEDIA_TABLE (
-    ID INTEGER PRIMARY KEY,
-    MEDIA_NAME VARCHAR(100),
-    MEDIA_TYPE VARCHAR(50)
+    Media_ID INTEGER PRIMARY KEY,
+    Media_URL TEXT,
+    MEDIA_TYPE VARCHAR(50),
+    Media_Name VARCHAR(100),
+    User_ID INTEGER FOREIGN KEY REFERENCES USER_TABLE(User_ID),
+    Media_Size INTEGER
 );
