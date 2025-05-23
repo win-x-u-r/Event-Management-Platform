@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS EVENT_TABLE (
     Avaialable_Seats INTEGER,
     Event_Status VARCHAR(50),
     Event_Discription VARCHAR(300),
-    Event_Budget INTEGER,
     Event_Host VARCHAR(100),
+    -- Budget_ID INTEGER FOREIGN KEY REFERENCES BUDGET_TABLE(Budget_ID),
 );
 
 CREATE TABLE IF NOT EXISTS USER_TABLE (
