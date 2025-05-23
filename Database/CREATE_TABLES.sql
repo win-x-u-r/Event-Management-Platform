@@ -7,9 +7,9 @@ CREATE TABLE IF NOT EXISTS EVENT_TABLE (
     Event_Start_Date DATE,
     Event_End_Date DATE,
     Event_Location VARCHAR(100),
-    Avaialable_Seats INTEGER,
+    Available_Seats INTEGER,
     Event_Status VARCHAR(50),
-    Event_Discription TEXT,
+    Event_Description TEXT,
     Event_Host VARCHAR(100)
     -- Budget_ID INTEGER FOREIGN KEY REFERENCES BUDGET_TABLE(Budget_ID),
 );
