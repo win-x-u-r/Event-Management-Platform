@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS USER_TABLE (
     User_First_Name VARCHAR(50),
     User_Last_Name VARCHAR(50),
     User_Department VARCHAR(100),
-    User_Email VARCHAR(100)
+    User_Email VARCHAR(100),
+    User_Phone VARCHAR(15)
 );
 
 CREATE TABLE IF NOT EXISTS MEDIA_TABLE (
