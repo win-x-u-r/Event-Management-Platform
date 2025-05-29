@@ -8,9 +8,9 @@ pycache/
 # Virtual environments (customize if yours is named differently)
 venv/
 env/
-campusbuddychatbot/Lib/
-campusbuddychatbot/Scripts/
-campusbuddychatbot/pyvenv.cfg
+EMP/Lib/
+EMP/Scripts/
+EMP/pyvenv.cfg
 
 # Django specific
 *.log
@@ -18,7 +18,6 @@ campusbuddychatbot/pyvenv.cfg
 *.pyc
 *.sqlite3
 db.sqlite3
-media/
 staticfiles/
 *.mo
 
