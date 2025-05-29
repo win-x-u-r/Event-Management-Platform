@@ -22,4 +22,5 @@ urlpatterns = [  # Include the events app URLs
     path('api/', include('events.urls')),
     path('api/', include('users.urls')),
     path('api/', include('budget.urls')),
+    path('api/', include('media.urls')),
 ]
