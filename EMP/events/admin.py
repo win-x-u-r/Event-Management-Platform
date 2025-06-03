@@ -10,11 +10,17 @@ class BudgetInline(admin.TabularInline):  # or StackedInline
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start_date', 'end_date', 'host', 'status')
-    search_fields = ('name', 'host')
-    list_filter = ('status', 'start_date')
-    inlines = [BudgetInline]  # shows budget items inline in the event admin
+    list_display = ('name', 'host', 'start_date', 'end_date', 'venue', 'location', 'category', 'department', 'status')
+    search_fields = ('name', 'host', 'department', 'category')
+    list_filter = ('status', 'department', 'category', 'start_date')
 
+    # This controls the fields shown when viewing/editing a specific event
+    fields = (
+        'name', 'description', 'host', 'venue', 'location', 'category', 'department',
+        'start_date', 'end_date', 'start_time', 'end_time', 'status'
+    )
+
+    inlines = [BudgetInline]
 @admin.register(EventTag)
 class EventTagAdmin(admin.ModelAdmin):
     list_display = ("event", "tag")

@@ -33,6 +33,10 @@ class Command(BaseCommand):
                 end_time = datetime.strptime(row.get('End Time:', ''), "%I:%M:%S %p").time() if row.get('End Time:') else None,
                 description=row.get('Event Description', ''),
                 host=row.get('Host: ', ''),
+                venue=row.get('Event Venue:', ''),
+                location=row.get('Event Location:', ''),
+                category=row.get('Category:', ''),
+                department=row.get('Department: ', ''),
                 status='Pending'
             )
 

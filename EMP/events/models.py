@@ -22,6 +22,10 @@ class Event(models.Model):
     status = models.CharField(max_length=50)
     description = models.TextField()
     host = models.CharField(max_length=100)
+    venue = models.CharField(max_length=100, blank=True)
+    location = models.CharField(max_length=100, blank=True)
+    category = models.CharField(max_length=100, blank=True)
+    department = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.start_date} - {self.end_date})"
