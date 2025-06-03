@@ -22,7 +22,6 @@ class Event(models.Model):
     status = models.CharField(max_length=50)
     description = models.TextField()
     host = models.CharField(max_length=100)
-    budget = models.ForeignKey("budget.Budget", on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.start_date} - {self.end_date})"
