@@ -31,7 +31,7 @@ class Command(BaseCommand):
                 end_date=datetime.strptime(row.get('End Date: ', ''), "%m/%d/%Y").date() if row.get('End Date: ') else None,
                 start_time = datetime.strptime(row.get('Start Time: ', ''), "%I:%M:%S %p").time() if row.get('Start Time: ') else None,
                 end_time = datetime.strptime(row.get('End Time:', ''), "%I:%M:%S %p").time() if row.get('End Time:') else None,
-                description=row.get('Event Description', ''),
+                description=row.get('Event Description ', ''),
                 host=row.get('Host: ', ''),
                 venue=row.get('Event Venue:', ''),
                 location=row.get('Event Location:', ''),
