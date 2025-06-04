@@ -2,12 +2,10 @@ from django.contrib import admin
 from .models import Event
 from budget.models import Budget
 from django.utils.html import format_html
-from django.urls import path
+from django.urls import path, reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
-from django.urls import reverse
 
-from django.urls import reverse
 
 class BudgetInline(admin.TabularInline):
     model = Budget
@@ -39,6 +37,8 @@ class EventAdmin(admin.ModelAdmin):
         custom_urls = [
             path('budget/grant/<int:budget_id>/', self.admin_site.admin_view(self.grant_budget), name='grant_budget'),
             path('budget/deny/<int:budget_id>/', self.admin_site.admin_view(self.deny_budget), name='deny_budget'),
+            path('event/approve/<int:event_id>/', self.admin_site.admin_view(self.approve_event), name='approve_event'),
+            path('event/deny/<int:event_id>/', self.admin_site.admin_view(self.deny_event), name='deny_event'),
         ]
         return custom_urls + urls
 
@@ -55,3 +55,46 @@ class EventAdmin(admin.ModelAdmin):
         budget.save()
         messages.success(request, f"Budget '{budget}' marked as DENIED.")
         return redirect(request.META.get('HTTP_REFERER', '/admin/'))
+
+    def approve_event(self, request, event_id):
+        event = get_object_or_404(Event, pk=event_id)
+        event.status = "Approved"
+        event.save()
+        messages.success(request, f"Event '{event}' marked as APPROVED.")
+        return redirect(f'/admin/events/event/{event_id}/change/')
+
+    def deny_event(self, request, event_id):
+        event = get_object_or_404(Event, pk=event_id)
+        event.status = "Denied"
+        event.save()
+        messages.success(request, f"Event '{event}' marked as DENIED.")
+        return redirect(f'/admin/events/event/{event_id}/change/')
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = [
+            (None, {
+                'fields': [
+                    'name', 'start_time', 'end_time',
+                    'start_date', 'end_date',
+                    'description', 'host',
+                    'venue', 'location',
+                    'category', 'department',
+                ]
+            }),
+            ('Status Actions', {
+                'fields': ['status'],
+                'description': self.status_actions(obj) if obj else ''
+            }),
+        ]
+        return fieldsets
+
+    def status_actions(self, obj):
+        if not obj:
+            return ""
+        approve_url = reverse('admin:approve_event', args=[obj.pk])
+        deny_url = reverse('admin:deny_event', args=[obj.pk])
+        return format_html(
+            '<a class="button" style="margin-right:10px;" href="{}">✅ Approve</a>'
+            '<a class="button" style="color:red;" href="{}">❌ Deny</a>',
+            approve_url, deny_url
+        )
