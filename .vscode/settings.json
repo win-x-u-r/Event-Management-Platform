@@ -10,5 +10,9 @@
             "username": "postgres",
             "password": "real"
         }
+    ],
+    "cSpell.words": [
+        "AURAK",
+        "REFERER"
     ]
 }
