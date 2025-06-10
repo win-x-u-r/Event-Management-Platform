@@ -84,8 +84,8 @@ class EventAdmin(admin.ModelAdmin):
                     'description', 'host',
                     'venue', 'location',
                     'category', 'department',
-                    'goals',  
-                    'expected_attendees',  
+                    'goals',
+                    'expected_attendees',
                 ]
             }),
             ('Status Actions', {
