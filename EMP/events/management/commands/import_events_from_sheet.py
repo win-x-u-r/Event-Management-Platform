@@ -47,7 +47,7 @@ class Command(BaseCommand):
                 category=row.get('Category:', ''),
                 department=row.get('Department: ', ''),
                 status='Pending',
-                goals=row.get('Goals', ''),
+                goals=row.get('Event Goal', ''),
                 expected_attendees=expected_attendees
             )
 
