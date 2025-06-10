@@ -25,6 +25,15 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
 
+
+            # Parse expected attendees
+            expected_attendees_str = row.get('Expected Number of Attendees', '')
+            try:
+                expected_attendees = int(expected_attendees_str) if expected_attendees_str else None
+            except ValueError:
+                expected_attendees = None
+
+
             event = Event.objects.create(
                 name=event_name,
                 start_date=start_date,
@@ -37,7 +46,9 @@ class Command(BaseCommand):
                 location=row.get('Event Location:', ''),
                 category=row.get('Category:', ''),
                 department=row.get('Department: ', ''),
-                status='Pending'
+                status='Pending',
+                goals=row.get('Goals', ''),
+                expected_attendees=expected_attendees
             )
 
             # Add budget items

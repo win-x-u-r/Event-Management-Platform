@@ -26,6 +26,9 @@ class Event(models.Model):
     location = models.CharField(max_length=100, blank=True)
     category = models.CharField(max_length=100, blank=True)
     department = models.CharField(max_length=100, blank=True)
+    goals = models.TextField(blank=True)
+    expected_attendees = models.IntegerField(blank=True, null=True)
+
 
     def __str__(self):
         return f"{self.name} ({self.start_date} - {self.end_date})"

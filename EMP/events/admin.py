@@ -5,11 +5,11 @@ from django.utils.html import format_html
 from django.urls import path, reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib import admin
 
 admin.site.site_header = "AURAK Event Management Platform"
 admin.site.site_title = "AURAK Event Management Platform"
 admin.site.index_title = "Welcome to the Admin Panel"
+
 class BudgetInline(admin.TabularInline):
     model = Budget
     extra = 0
@@ -27,10 +27,12 @@ class BudgetInline(admin.TabularInline):
         return ""
     change_status.short_description = "Actions"
 
-
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'host', 'start_date', 'status', 'category', 'department')
+    list_display = (
+        'name', 'host', 'start_date', 'status', 'category',
+        'department', 'expected_attendees'
+    )
     list_filter = ('status', 'department', 'category')
     search_fields = ('name', 'host', 'department', 'category')
     inlines = [BudgetInline]
@@ -82,6 +84,8 @@ class EventAdmin(admin.ModelAdmin):
                     'description', 'host',
                     'venue', 'location',
                     'category', 'department',
+                    'goals',  
+                    'expected_attendees',  
                 ]
             }),
             ('Status Actions', {
