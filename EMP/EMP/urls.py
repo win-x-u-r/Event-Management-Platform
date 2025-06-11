@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from events.api_views import submit_event
+
 
 urlpatterns = [  # Include the events app URLs
     path('admin/', admin.site.urls),
@@ -23,4 +25,5 @@ urlpatterns = [  # Include the events app URLs
     path('api/', include('users.urls')),
     path('api/', include('budget.urls')),
     path('api/', include('media.urls')),
+    path('api/events/submit/', submit_event, name='submit_event'),
 ]

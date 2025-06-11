@@ -7,10 +7,70 @@ export default function EventRequestForm() {
     { name: "", quantity: "", price: "", totalPrice: "" },
   ]);
 
-  const handleSubmit = (e) => {
+  // Personal Information
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [department, setDepartment] = useState("");
+
+  // Event Details
+  const [eventName, setEventName] = useState(""); // Event Name
+  const [host, setHost] = useState("");
+  const [description, setDescription] = useState("");
+  const [goals, setGoals] = useState("");
+  const [venue, setVenue] = useState("");
+  const [location, setLocation] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [expectedAttendees, setExpectedAttendees] = useState("");
+
+  // Classification
+  const [category, setCategory] = useState("");
+  const [targetAudience, setTargetAudience] = useState("");
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted!");
-    console.log("Budget Items:", items);
+
+    const payload = {
+      name: eventName,
+      start_date: startDate,
+      end_date: endDate,
+      start_time: startTime,
+      end_time: endTime,
+      description: description,
+      host: host,
+      venue: venue,
+      location: location,
+      category: category,
+      department: department,
+      goals: goals,
+      expected_attendees: parseInt(expectedAttendees),
+      budget_items: items,
+
+      // New fields:
+      full_name: fullName,
+      email: email,
+      phone: phone,
+      target_audience: targetAudience,
+    };
+
+    console.log("Submitting payload:", payload); // Debug log
+
+    const response = await fetch("http://localhost:8000/api/events/submit/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      alert("Event submitted successfully!");
+    } else {
+      alert("Error submitting event.");
+    }
   };
 
   const handleAddItem = () => {
@@ -56,38 +116,46 @@ export default function EventRequestForm() {
               </div>
               <h2 className="text-2xl font-bold text-foreground">Personal Information</h2>
             </div>
-            
+
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Full Name *</label>
-                <input 
-                  required 
-                  placeholder="Enter your full name" 
+                <input
+                  required
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">AURAK Email *</label>
-                <input 
-                  required 
-                  type="email" 
-                  placeholder="your.email@aurak.ac.ae" 
+                <input
+                  required
+                  type="email"
+                  placeholder="your.email@aurak.ac.ae"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Phone Number *</label>
-                <input 
-                  required 
-                  type="tel" 
-                  placeholder="+971 XX XXX XXXX" 
+                <input
+                  required
+                  type="tel"
+                  placeholder="+971 XX XXX XXXX"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Department *</label>
-                <select 
-                  required 
+                <select
+                  required
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                 >
                   <option value="">Select your department</option>
@@ -111,7 +179,6 @@ export default function EventRequestForm() {
             </div>
           </div>
 
-          {/* Event Details Section */}
           <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
@@ -119,22 +186,26 @@ export default function EventRequestForm() {
               </div>
               <h2 className="text-2xl font-bold text-foreground">Event Details</h2>
             </div>
-            
+
             <div className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">Event Name *</label>
-                  <input 
-                    required 
-                    placeholder="Enter event name" 
+                  <input
+                    required
+                    value={eventName}
+                    onChange={(e) => setEventName(e.target.value)}
+                    placeholder="Enter event name"
                     className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">Host *</label>
-                  <input 
-                    required 
-                    placeholder="Event host/organizer" 
+                  <input
+                    required
+                    placeholder="Event host/organizer"
+                    value={host}
+                    onChange={(e) => setHost(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                   />
                 </div>
@@ -142,9 +213,11 @@ export default function EventRequestForm() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Event Description *</label>
-                <textarea 
-                  required 
-                  placeholder="Describe your event in detail..." 
+                <textarea
+                  required
+                  placeholder="Describe your event in detail..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground resize-none"
                   rows={4}
                 />
@@ -152,24 +225,27 @@ export default function EventRequestForm() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Event Goal *</label>
-                <textarea 
-                  required 
-                  placeholder="What are the objectives and expected outcomes?" 
+                <textarea
+                  required
+                  placeholder="What are the objectives and expected outcomes?"
+                  value={goals}
+                  onChange={(e) => setGoals(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground resize-none"
                   rows={3}
                 />
               </div>
 
-              
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
                     Event Venue *
                   </label>
-                  <input 
-                    required 
-                    placeholder="Venue name" 
+                  <input
+                    required
+                    placeholder="Venue name"
+                    value={venue}
+                    onChange={(e) => setVenue(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                   />
                 </div>
@@ -178,9 +254,11 @@ export default function EventRequestForm() {
                     <Building2 className="w-4 h-4" />
                     Event Location *
                   </label>
-                  <input 
-                    required 
-                    placeholder="Specific location/address" 
+                  <input
+                    required
+                    placeholder="Specific location/address"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                   />
                 </div>
@@ -190,17 +268,21 @@ export default function EventRequestForm() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground">Start Date *</label>
-                    <input 
-                      required 
-                      type="date" 
+                    <input
+                      required
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground">End Date *</label>
-                    <input 
-                      required 
-                      type="date" 
+                    <input
+                      required
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                     />
                   </div>
@@ -211,9 +293,11 @@ export default function EventRequestForm() {
                       <Clock className="w-4 h-4" />
                       Start Time *
                     </label>
-                    <input 
-                      required 
-                      type="time" 
+                    <input
+                      required
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      type="time"
                       className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                     />
                   </div>
@@ -222,9 +306,11 @@ export default function EventRequestForm() {
                       <Clock className="w-4 h-4" />
                       End Time *
                     </label>
-                    <input 
-                      required 
-                      type="time" 
+                    <input
+                      required
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      type="time"
                       className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                     />
                   </div>
@@ -233,16 +319,17 @@ export default function EventRequestForm() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">Expected Number of Attendees *</label>
-                <input 
-                  required 
-                  placeholder="Estimated attendance" 
-                  type="number" 
+                <input
+                  required
+                  value={expectedAttendees}
+                  onChange={(e) => setExpectedAttendees(e.target.value)}
+                  placeholder="Estimated attendance"
+                  type="number"
                   className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                 />
               </div>
             </div>
           </div>
-
           
 
           {/* Event Classification Section */}
@@ -253,28 +340,26 @@ export default function EventRequestForm() {
               </div>
               <h2 className="text-2xl font-bold text-foreground">Event Classification</h2>
             </div>
-            
+
             <div className="space-y-6">
               <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground">Event Type *</label>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-3 p-4 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer">
-                    <input type="radio" name="type" value="University-hosted" required className="text-primary" />
-                    <span className="text-foreground">University-hosted</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-4 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer">
-                    <input type="radio" name="type" value="Co-hosted" required className="text-primary" />
-                    <span className="text-foreground">Co-hosted</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground">Category *</label>
+                <label className="text-sm font-medium text-foreground">Event Category *</label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {["Sport", "Academic", "Cultural", "Club", "Other"].map((cat) => (
-                    <label key={cat} className="flex items-center gap-3 p-3 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer">
-                      <input type="checkbox" className="text-primary" />
+                    <label
+                      key={cat}
+                      className={`flex items-center gap-3 p-3 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer ${
+                        category === cat ? "ring-2 ring-blue-500" : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="category"
+                        value={cat}
+                        checked={category === cat}
+                        onChange={() => setCategory(cat)}
+                        className="text-primary"
+                      />
                       <span className="text-foreground">{cat}</span>
                     </label>
                   ))}
@@ -285,8 +370,20 @@ export default function EventRequestForm() {
                 <label className="text-sm font-medium text-foreground">Target Audience *</label>
                 <div className="grid grid-cols-3 gap-3">
                   {["Students", "Faculty", "Both"].map((aud) => (
-                    <label key={aud} className="flex items-center gap-3 p-3 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer">
-                      <input type="checkbox" className="text-primary" />
+                    <label
+                      key={aud}
+                      className={`flex items-center gap-3 p-3 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer ${
+                        targetAudience === aud ? "ring-2 ring-blue-500" : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="targetAudience"
+                        value={aud}
+                        checked={targetAudience === aud}
+                        onChange={() => setTargetAudience(aud)}
+                        className="text-primary"
+                      />
                       <span className="text-foreground">{aud}</span>
                     </label>
                   ))}
@@ -437,7 +534,7 @@ export default function EventRequestForm() {
             </div>
           </div>
 
-          {/* Submit Button */}
+ {/* Submit Button */}
           <div className="text-center">
             <button
               type="submit"
