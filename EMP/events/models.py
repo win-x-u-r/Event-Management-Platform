@@ -28,6 +28,7 @@ class Event(models.Model):
     department = models.CharField(max_length=100, blank=True)
     goals = models.TextField(blank=True)
     expected_attendees = models.IntegerField(blank=True, null=True)
+    target_audience = models.CharField(max_length=255, blank=True)
 
 
     def __str__(self):

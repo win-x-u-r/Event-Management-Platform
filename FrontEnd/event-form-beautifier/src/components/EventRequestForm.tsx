@@ -31,16 +31,21 @@ export default function EventRequestForm() {
   const [targetAudience, setTargetAudience] = useState("");
 
 const API_BASE_URL = "http://172.16.1.100:8000";
+const [isSubmitting, setIsSubmitting] = useState(false);
+const [successMessage, setSuccessMessage] = useState("");
 
 const handleSubmit = async (e) => {
   e.preventDefault();
+
+  setIsSubmitting(true); // Disable button
+  setSuccessMessage(""); // Clear old message
 
   const payload = {
     status: "Pending",
     name: eventName,
     start_date: startDate,
     end_date: endDate,
-    start_time: startTime + ":00", // Add seconds to match TimeField
+    start_time: startTime + ":00",
     end_time: endTime + ":00",
     description: description,
     host: host,
@@ -56,10 +61,9 @@ const handleSubmit = async (e) => {
     target_audience: targetAudience,
   };
 
-  console.log("Submitting Event payload:", payload); // Debug log
+  console.log("Submitting Event payload:", payload);
 
   try {
-    // Step 1 — Create the Event
     const response = await fetch(`${API_BASE_URL}/api/events/`, {
       method: "POST",
       headers: {
@@ -72,6 +76,7 @@ const handleSubmit = async (e) => {
       const errorData = await response.json();
       console.error("Error submitting Event:", errorData);
       alert("Error submitting Event.");
+      setIsSubmitting(false);
       return;
     }
 
@@ -79,9 +84,8 @@ const handleSubmit = async (e) => {
     const eventId = eventData.id;
     console.log("Event created with ID:", eventId);
 
-    // Step 2 — Submit Budget Items
+    // Submit Budget items
     for (const item of items) {
-      // Skip empty items
       if (
         item.name.trim() === "" &&
         item.quantity === "" &&
@@ -89,7 +93,7 @@ const handleSubmit = async (e) => {
         item.totalPrice === ""
       ) {
         console.log("Skipping empty budget item");
-        continue; // Skip this item
+        continue;
       }
 
       const budgetPayload = {
@@ -97,7 +101,7 @@ const handleSubmit = async (e) => {
         item_quantity: parseInt(item.quantity),
         item_cost: parseFloat(item.price),
         total_cost: parseFloat(item.totalPrice),
-        budget_status: "Pending", // you can add this as a form field later if needed
+        budget_status: "Pending",
         event: eventId,
       };
 
@@ -118,11 +122,15 @@ const handleSubmit = async (e) => {
       }
     }
 
-    alert("Event and Budget items submitted successfully!");
+    // Success 🎉
+    setSuccessMessage("Event and Budget items submitted successfully!");
+    console.log("Event and Budget items submitted successfully!");
 
   } catch (error) {
     console.error("Network error submitting Event and Budget:", error);
     alert("Network error. Check console.");
+  } finally {
+    setIsSubmitting(false); // Re-enable button
   }
 };
 
@@ -423,7 +431,7 @@ const handleSubmit = async (e) => {
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground">Target Audience *</label>
                 <div className="grid grid-cols-3 gap-3">
-                  {["Students", "Faculty", "Both"].map((aud) => (
+                  {["Students", "Faculty", "Community"].map((aud) => (
                     <label
                       key={aud}
                       className={`flex items-center gap-3 p-3 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer ${
@@ -592,12 +600,20 @@ const handleSubmit = async (e) => {
           <div className="text-center">
             <button
               type="submit"
-              className="px-12 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white text-lg font-semibold rounded-2xl hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105"
+              disabled={isSubmitting}
+              className={`px-12 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white text-lg font-semibold rounded-2xl transition-all duration-300 shadow-xl transform
+                ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 hover:shadow-2xl hover:scale-105"}`}
             >
-              Submit Event Request
+              {isSubmitting ? "Submitting..." : "Submit Event Request"}
             </button>
           </div>
         </form>
+        {/* Success message goes below the form */}
+          {successMessage && (
+            <div className="text-green-600 font-bold mt-4 text-center">
+              {successMessage}
+            </div>
+          )}
       </div>
     </div>
   );

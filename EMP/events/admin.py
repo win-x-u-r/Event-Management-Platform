@@ -31,10 +31,10 @@ class BudgetInline(admin.TabularInline):
 class EventAdmin(admin.ModelAdmin):
     list_display = (
         'name', 'host', 'start_date', 'status', 'category',
-        'department', 'expected_attendees'
+        'department', 'expected_attendees','target_audience'
     )
     list_filter = ('status', 'department', 'category')
-    search_fields = ('name', 'host', 'department', 'category')
+    search_fields = ('name', 'host', 'department', 'category', 'target_audience')
     inlines = [BudgetInline]
 
     def get_urls(self):
@@ -86,6 +86,7 @@ class EventAdmin(admin.ModelAdmin):
                     'category', 'department',
                     'goals',
                     'expected_attendees',
+                    'target_audience',
                 ]
             }),
             ('Status Actions', {
