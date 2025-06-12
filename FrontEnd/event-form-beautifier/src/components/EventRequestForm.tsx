@@ -30,6 +30,8 @@ export default function EventRequestForm() {
   const [category, setCategory] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
 
+const API_BASE_URL = "http://172.16.1.100:8000";
+
 const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -48,19 +50,17 @@ const handleSubmit = async (e) => {
     department: department,
     goals: goals,
     expected_attendees: parseInt(expectedAttendees),
-    // The following fields will be saved in Event only if your serializer handles them.
     full_name: fullName,
     email: email,
     phone: phone,
     target_audience: targetAudience,
-    // NOTE: budget_items will not be processed by /api/events/ — we will POST them separately below.
   };
 
   console.log("Submitting Event payload:", payload); // Debug log
 
   try {
     // Step 1 — Create the Event
-    const response = await fetch("http://localhost:8000/api/events/", {
+    const response = await fetch(`${API_BASE_URL}/api/events/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -81,6 +81,17 @@ const handleSubmit = async (e) => {
 
     // Step 2 — Submit Budget Items
     for (const item of items) {
+      // Skip empty items
+      if (
+        item.name.trim() === "" &&
+        item.quantity === "" &&
+        item.price === "" &&
+        item.totalPrice === ""
+      ) {
+        console.log("Skipping empty budget item");
+        continue; // Skip this item
+      }
+
       const budgetPayload = {
         item_name: item.name,
         item_quantity: parseInt(item.quantity),
@@ -92,7 +103,7 @@ const handleSubmit = async (e) => {
 
       console.log("Submitting Budget item:", budgetPayload);
 
-      const budgetResponse = await fetch("http://localhost:8000/api/budgets/", {
+      const budgetResponse = await fetch(`${API_BASE_URL}/api/budgets/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -114,6 +125,7 @@ const handleSubmit = async (e) => {
     alert("Network error. Check console.");
   }
 };
+
 
   const handleAddItem = () => {
     setItems([
