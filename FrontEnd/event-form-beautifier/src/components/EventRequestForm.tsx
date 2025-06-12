@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Calendar, Clock, MapPin, Users, DollarSign, Plus, Trash2, Building2 } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  DollarSign,
+  Plus,
+  Trash2,
+  Building2,
+} from "lucide-react";
 
 export default function EventRequestForm() {
   const [needsBudget, setNeedsBudget] = useState(false);
@@ -30,116 +39,111 @@ export default function EventRequestForm() {
   const [category, setCategory] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
 
-const API_BASE_URL = "http://172.16.1.100:8000";
-const [isSubmitting, setIsSubmitting] = useState(false);
-const [successMessage, setSuccessMessage] = useState("");
+  const API_BASE_URL = "http://172.16.1.100:8000";
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  setIsSubmitting(true); // Disable button
-  setSuccessMessage(""); // Clear old message
+    setIsSubmitting(true); // Disable button
+    setSuccessMessage(""); // Clear old message
 
-  const payload = {
-    status: "Pending",
-    name: eventName,
-    start_date: startDate,
-    end_date: endDate,
-    start_time: startTime + ":00",
-    end_time: endTime + ":00",
-    description: description,
-    host: host,
-    venue: venue,
-    location: location,
-    category: category,
-    department: department,
-    goals: goals,
-    expected_attendees: parseInt(expectedAttendees),
-    full_name: fullName,
-    email: email,
-    phone: phone,
-    target_audience: targetAudience,
-  };
+    const payload = {
+      status: "Pending",
+      name: eventName,
+      start_date: startDate,
+      end_date: endDate,
+      start_time: startTime + ":00",
+      end_time: endTime + ":00",
+      description: description,
+      host: host,
+      venue: venue,
+      location: location,
+      category: category,
+      department: department,
+      goals: goals,
+      expected_attendees: parseInt(expectedAttendees),
+      full_name: fullName,
+      email: email,
+      phone: phone,
+      target_audience: targetAudience,
+    };
 
-  console.log("Submitting Event payload:", payload);
+    console.log("Submitting Event payload:", payload);
 
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/events/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Error submitting Event:", errorData);
-      alert("Error submitting Event.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    const eventData = await response.json();
-    const eventId = eventData.id;
-    console.log("Event created with ID:", eventId);
-
-    // Submit Budget items
-    for (const item of items) {
-      if (
-        item.name.trim() === "" &&
-        item.quantity === "" &&
-        item.price === "" &&
-        item.totalPrice === ""
-      ) {
-        console.log("Skipping empty budget item");
-        continue;
-      }
-
-      const budgetPayload = {
-        item_name: item.name,
-        item_quantity: parseInt(item.quantity),
-        item_cost: parseFloat(item.price),
-        total_cost: parseFloat(item.totalPrice),
-        budget_status: "Pending",
-        event: eventId,
-      };
-
-      console.log("Submitting Budget item:", budgetPayload);
-
-      const budgetResponse = await fetch(`${API_BASE_URL}/api/budgets/`, {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/events/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(budgetPayload),
+        body: JSON.stringify(payload),
       });
 
-      if (!budgetResponse.ok) {
-        const budgetErrorData = await budgetResponse.json();
-        console.error("Error submitting Budget item:", budgetErrorData);
-        alert("Error submitting one or more Budget items. Check console.");
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error submitting Event:", errorData);
+        alert("Error submitting Event.");
+        setIsSubmitting(false);
+        return;
       }
+
+      const eventData = await response.json();
+      const eventId = eventData.id;
+      console.log("Event created with ID:", eventId);
+
+      // Submit Budget items
+      for (const item of items) {
+        if (
+          item.name.trim() === "" &&
+          item.quantity === "" &&
+          item.price === "" &&
+          item.totalPrice === ""
+        ) {
+          console.log("Skipping empty budget item");
+          continue;
+        }
+
+        const budgetPayload = {
+          item_name: item.name,
+          item_quantity: parseInt(item.quantity),
+          item_cost: parseFloat(item.price),
+          total_cost: parseFloat(item.totalPrice),
+          budget_status: "Pending",
+          event: eventId,
+        };
+
+        console.log("Submitting Budget item:", budgetPayload);
+
+        const budgetResponse = await fetch(`${API_BASE_URL}/api/budgets/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(budgetPayload),
+        });
+
+        if (!budgetResponse.ok) {
+          const budgetErrorData = await budgetResponse.json();
+          console.error("Error submitting Budget item:", budgetErrorData);
+          alert("Error submitting one or more Budget items. Check console.");
+        }
+      }
+
+      // Success 🎉
+      setSuccessMessage("Event and Budget items submitted successfully!");
+      console.log("Event and Budget items submitted successfully!");
+    } catch (error) {
+      console.error("Network error submitting Event and Budget:", error);
+      alert("Network error. Check console.");
+    } finally {
+      setIsSubmitting(false); // Re-enable button
     }
-
-    // Success 🎉
-    setSuccessMessage("Event and Budget items submitted successfully!");
-    console.log("Event and Budget items submitted successfully!");
-
-  } catch (error) {
-    console.error("Network error submitting Event and Budget:", error);
-    alert("Network error. Check console.");
-  } finally {
-    setIsSubmitting(false); // Re-enable button
-  }
-};
-
+  };
 
   const handleAddItem = () => {
-    setItems([
-      ...items,
-      { name: "", quantity: "", price: "", totalPrice: "" },
-    ]);
+    setItems([...items, { name: "", quantity: "", price: "", totalPrice: "" }]);
   };
 
   const handleItemChange = (index, field, value) => {
@@ -165,7 +169,8 @@ const handleSubmit = async (e) => {
             Event Request Form
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Submit your event proposal with all the necessary details for approval and coordination
+            Submit your event proposal with all the necessary details for
+            approval and coordination
           </p>
         </div>
 
@@ -176,12 +181,16 @@ const handleSubmit = async (e) => {
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
                 <Users className="w-4 h-4 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-foreground">Personal Information</h2>
+              <h2 className="text-2xl font-bold text-foreground">
+                Personal Information
+              </h2>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Full Name *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Full Name *
+                </label>
                 <input
                   required
                   placeholder="Enter your full name"
@@ -191,7 +200,9 @@ const handleSubmit = async (e) => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">AURAK Email *</label>
+                <label className="text-sm font-medium text-foreground">
+                  AURAK Email *
+                </label>
                 <input
                   required
                   type="email"
@@ -202,7 +213,9 @@ const handleSubmit = async (e) => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Phone Number *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Phone Number *
+                </label>
                 <input
                   required
                   type="tel"
@@ -213,7 +226,9 @@ const handleSubmit = async (e) => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Department *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Department *
+                </label>
                 <select
                   required
                   value={department}
@@ -234,7 +249,9 @@ const handleSubmit = async (e) => {
                     "Department of Accounting & Finance",
                     "Department of Management",
                   ].map((dept) => (
-                    <option key={dept} value={dept}>{dept}</option>
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -246,13 +263,17 @@ const handleSubmit = async (e) => {
               <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
                 <Calendar className="w-4 h-4 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-foreground">Event Details</h2>
+              <h2 className="text-2xl font-bold text-foreground">
+                Event Details
+              </h2>
             </div>
 
             <div className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">Event Name *</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Event Name *
+                  </label>
                   <input
                     required
                     value={eventName}
@@ -262,7 +283,9 @@ const handleSubmit = async (e) => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">Host *</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Host *
+                  </label>
                   <input
                     required
                     placeholder="Event host/organizer"
@@ -274,7 +297,9 @@ const handleSubmit = async (e) => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Event Description *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Event Description *
+                </label>
                 <textarea
                   required
                   placeholder="Describe your event in detail..."
@@ -286,7 +311,9 @@ const handleSubmit = async (e) => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Event Goal *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Event Goal *
+                </label>
                 <textarea
                   required
                   placeholder="What are the objectives and expected outcomes?"
@@ -329,7 +356,9 @@ const handleSubmit = async (e) => {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">Start Date *</label>
+                    <label className="text-sm font-medium text-foreground">
+                      Start Date *
+                    </label>
                     <input
                       required
                       type="date"
@@ -339,7 +368,9 @@ const handleSubmit = async (e) => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">End Date *</label>
+                    <label className="text-sm font-medium text-foreground">
+                      End Date *
+                    </label>
                     <input
                       required
                       type="date"
@@ -380,7 +411,9 @@ const handleSubmit = async (e) => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Expected Number of Attendees *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Expected Number of Attendees *
+                </label>
                 <input
                   required
                   value={expectedAttendees}
@@ -392,7 +425,6 @@ const handleSubmit = async (e) => {
               </div>
             </div>
           </div>
-          
 
           {/* Event Classification Section */}
           <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
@@ -400,36 +432,44 @@ const handleSubmit = async (e) => {
               <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
                 <Users className="w-4 h-4 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-foreground">Event Classification</h2>
+              <h2 className="text-2xl font-bold text-foreground">
+                Event Classification
+              </h2>
             </div>
 
             <div className="space-y-6">
               <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground">Event Category *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Event Category *
+                </label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {["Sport", "Academic", "Cultural", "Club", "Other"].map((cat) => (
-                    <label
-                      key={cat}
-                      className={`flex items-center gap-3 p-3 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer ${
-                        category === cat ? "ring-2 ring-blue-500" : ""
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="category"
-                        value={cat}
-                        checked={category === cat}
-                        onChange={() => setCategory(cat)}
-                        className="text-primary"
-                      />
-                      <span className="text-foreground">{cat}</span>
-                    </label>
-                  ))}
+                  {["Sport", "Academic", "Cultural", "Club", "Other"].map(
+                    (cat) => (
+                      <label
+                        key={cat}
+                        className={`flex items-center gap-3 p-3 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer ${
+                          category === cat ? "ring-2 ring-blue-500" : ""
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="category"
+                          value={cat}
+                          checked={category === cat}
+                          onChange={() => setCategory(cat)}
+                          className="text-primary"
+                        />
+                        <span className="text-foreground">{cat}</span>
+                      </label>
+                    )
+                  )}
                 </div>
               </div>
 
               <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground">Target Audience *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Target Audience *
+                </label>
                 <div className="grid grid-cols-3 gap-3">
                   {["Students", "Faculty", "Community"].map((aud) => (
                     <label
@@ -460,20 +500,27 @@ const handleSubmit = async (e) => {
               <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
                 <Building2 className="w-4 h-4 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-foreground">Request Resources</h2>
+              <h2 className="text-2xl font-bold text-foreground">
+                Request Resources
+              </h2>
             </div>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {["Food", "Beverages", "Screens", "Markers/Pens", "Papers"].map((item) => (
-                  <label key={item} className="flex items-center gap-3 p-3 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer">
-                    <input type="checkbox" className="text-primary" />
-                    <span className="text-foreground">{item}</span>
-                  </label>
-                ))}
+                {["Food", "Beverages", "Screens", "Markers/Pens", "Papers"].map(
+                  (item) => (
+                    <label
+                      key={item}
+                      className="flex items-center gap-3 p-3 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer"
+                    >
+                      <input type="checkbox" className="text-primary" />
+                      <span className="text-foreground">{item}</span>
+                    </label>
+                  )
+                )}
               </div>
-              <input 
-                placeholder="Other resources (specify)" 
+              <input
+                placeholder="Other resources (specify)"
                 className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
               />
             </div>
@@ -485,12 +532,16 @@ const handleSubmit = async (e) => {
               <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
                 <DollarSign className="w-4 h-4 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-foreground">Budget Request</h2>
+              <h2 className="text-2xl font-bold text-foreground">
+                Budget Request
+              </h2>
             </div>
-            
+
             <div className="space-y-6">
               <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground">Do you need a budget? *</label>
+                <label className="text-sm font-medium text-foreground">
+                  Do you need a budget? *
+                </label>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-3 p-4 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer">
                     <input
@@ -508,7 +559,9 @@ const handleSubmit = async (e) => {
                       onChange={() => setNeedsBudget(false)}
                       className="text-primary"
                     />
-                    <span className="text-foreground">I don't need a budget</span>
+                    <span className="text-foreground">
+                      I don't need a budget
+                    </span>
                   </label>
                 </div>
               </div>
@@ -516,7 +569,9 @@ const handleSubmit = async (e) => {
               {needsBudget && (
                 <div className="space-y-6 border-t pt-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-foreground">Budget Items</h3>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      Budget Items
+                    </h3>
                     <button
                       type="button"
                       onClick={handleAddItem}
@@ -541,31 +596,45 @@ const handleSubmit = async (e) => {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       )}
-                      
+
                       <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-foreground">Item Name *</label>
+                          <label className="text-sm font-medium text-foreground">
+                            Item Name *
+                          </label>
                           <input
                             required
                             placeholder={`Item ${index + 1} name`}
                             className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                             value={item.name}
-                            onChange={(e) => handleItemChange(index, "name", e.target.value)}
+                            onChange={(e) =>
+                              handleItemChange(index, "name", e.target.value)
+                            }
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-foreground">Quantity *</label>
+                          <label className="text-sm font-medium text-foreground">
+                            Quantity *
+                          </label>
                           <input
                             required
                             type="number"
                             placeholder="Qty"
                             className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                             value={item.quantity}
-                            onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
+                            onChange={(e) =>
+                              handleItemChange(
+                                index,
+                                "quantity",
+                                e.target.value
+                              )
+                            }
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-foreground">Unit Price (AED) *</label>
+                          <label className="text-sm font-medium text-foreground">
+                            Unit Price (AED) *
+                          </label>
                           <input
                             required
                             type="number"
@@ -573,11 +642,15 @@ const handleSubmit = async (e) => {
                             placeholder="0.00"
                             className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                             value={item.price}
-                            onChange={(e) => handleItemChange(index, "price", e.target.value)}
+                            onChange={(e) =>
+                              handleItemChange(index, "price", e.target.value)
+                            }
                           />
                         </div>
                         <div className="space-y-2">
-                          <label className="text-sm font-medium text-foreground">Total Price (AED) *</label>
+                          <label className="text-sm font-medium text-foreground">
+                            Total Price (AED) *
+                          </label>
                           <input
                             required
                             type="number"
@@ -585,7 +658,13 @@ const handleSubmit = async (e) => {
                             placeholder="0.00"
                             className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
                             value={item.totalPrice}
-                            onChange={(e) => handleItemChange(index, "totalPrice", e.target.value)}
+                            onChange={(e) =>
+                              handleItemChange(
+                                index,
+                                "totalPrice",
+                                e.target.value
+                              )
+                            }
                           />
                         </div>
                       </div>
@@ -596,24 +675,28 @@ const handleSubmit = async (e) => {
             </div>
           </div>
 
- {/* Submit Button */}
+          {/* Submit Button */}
           <div className="text-center">
             <button
               type="submit"
               disabled={isSubmitting}
               className={`px-12 py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white text-lg font-semibold rounded-2xl transition-all duration-300 shadow-xl transform
-                ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 hover:shadow-2xl hover:scale-105"}`}
+                ${
+                  isSubmitting
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 hover:shadow-2xl hover:scale-105"
+                }`}
             >
               {isSubmitting ? "Submitting..." : "Submit Event Request"}
             </button>
           </div>
         </form>
         {/* Success message goes below the form */}
-          {successMessage && (
-            <div className="text-green-600 font-bold mt-4 text-center">
-              {successMessage}
-            </div>
-          )}
+        {successMessage && (
+          <div className="text-green-600 font-bold mt-4 text-center">
+            {successMessage}
+          </div>
+        )}
       </div>
     </div>
   );
