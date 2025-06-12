@@ -30,33 +30,36 @@ export default function EventRequestForm() {
   const [category, setCategory] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const payload = {
-      status: "Pending",
-      name: eventName,
-      start_date: startDate,
-      end_date: endDate,
-      start_time: startTime,
-      end_time: endTime,
-      description: description,
-      host: host,
-      venue: venue,
-      location: location,
-      category: category,
-      department: department,
-      goals: goals,
-      expected_attendees: parseInt(expectedAttendees),
-      budget_items: items,
-      full_name: fullName,
-      email: email,
-      phone: phone,
-      target_audience: targetAudience,
-    };
+  const payload = {
+    status: "Pending",
+    name: eventName,
+    start_date: startDate,
+    end_date: endDate,
+    start_time: startTime + ":00", // Add seconds to match TimeField
+    end_time: endTime + ":00",
+    description: description,
+    host: host,
+    venue: venue,
+    location: location,
+    category: category,
+    department: department,
+    goals: goals,
+    expected_attendees: parseInt(expectedAttendees),
+    // The following fields will be saved in Event only if your serializer handles them.
+    full_name: fullName,
+    email: email,
+    phone: phone,
+    target_audience: targetAudience,
+    // NOTE: budget_items will not be processed by /api/events/ — we will POST them separately below.
+  };
 
-    console.log("Submitting payload:", payload); // Debug log
+  console.log("Submitting Event payload:", payload); // Debug log
 
+  try {
+    // Step 1 — Create the Event
     const response = await fetch("http://localhost:8000/api/events/", {
       method: "POST",
       headers: {
@@ -65,12 +68,52 @@ export default function EventRequestForm() {
       body: JSON.stringify(payload),
     });
 
-    if (response.ok) {
-      alert("Event submitted successfully!");
-    } else {
-      alert("Error submitting event.");
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error submitting Event:", errorData);
+      alert("Error submitting Event.");
+      return;
     }
-  };
+
+    const eventData = await response.json();
+    const eventId = eventData.id;
+    console.log("Event created with ID:", eventId);
+
+    // Step 2 — Submit Budget Items
+    for (const item of items) {
+      const budgetPayload = {
+        item_name: item.name,
+        item_quantity: parseInt(item.quantity),
+        item_cost: parseFloat(item.price),
+        total_cost: parseFloat(item.totalPrice),
+        budget_status: "Pending", // you can add this as a form field later if needed
+        event: eventId,
+      };
+
+      console.log("Submitting Budget item:", budgetPayload);
+
+      const budgetResponse = await fetch("http://localhost:8000/api/budgets/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(budgetPayload),
+      });
+
+      if (!budgetResponse.ok) {
+        const budgetErrorData = await budgetResponse.json();
+        console.error("Error submitting Budget item:", budgetErrorData);
+        alert("Error submitting one or more Budget items. Check console.");
+      }
+    }
+
+    alert("Event and Budget items submitted successfully!");
+
+  } catch (error) {
+    console.error("Network error submitting Event and Budget:", error);
+    alert("Network error. Check console.");
+  }
+};
 
   const handleAddItem = () => {
     setItems([
