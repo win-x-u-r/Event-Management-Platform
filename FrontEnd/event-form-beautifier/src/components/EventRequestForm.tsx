@@ -34,6 +34,7 @@ export default function EventRequestForm() {
     e.preventDefault();
 
     const payload = {
+      status: "Pending",
       name: eventName,
       start_date: startDate,
       end_date: endDate,
@@ -48,8 +49,6 @@ export default function EventRequestForm() {
       goals: goals,
       expected_attendees: parseInt(expectedAttendees),
       budget_items: items,
-
-      // New fields:
       full_name: fullName,
       email: email,
       phone: phone,
@@ -58,7 +57,7 @@ export default function EventRequestForm() {
 
     console.log("Submitting payload:", payload); // Debug log
 
-    const response = await fetch("http://localhost:8000/api/events/submit/", {
+    const response = await fetch("http://localhost:8000/api/events/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
