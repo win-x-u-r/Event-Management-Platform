@@ -42,7 +42,10 @@ export default function EventRequestForm() {
   const [category, setCategory] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
 
+  // API Base URL (may need to change based on your current IP)
   const API_BASE_URL = "http://172.16.1.31:8000";
+
+  // Form submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -137,7 +140,7 @@ export default function EventRequestForm() {
         }
       }
 
-      // Success 🎉
+      // Success
       setSuccessMessage("Event and Budget items submitted successfully!");
       console.log("Event and Budget items submitted successfully!");
     } catch (error) {
@@ -489,6 +492,7 @@ export default function EventRequestForm() {
                         <input
                           type="radio"
                           name="category"
+                          required
                           value={cat}
                           checked={category === cat}
                           onChange={() => setCategory(cat)}
@@ -515,6 +519,7 @@ export default function EventRequestForm() {
                     >
                       <input
                         type="radio"
+                        required
                         name="targetAudience"
                         value={aud}
                         checked={targetAudience === aud}
@@ -585,7 +590,7 @@ export default function EventRequestForm() {
                       onChange={() => setNeedsBudget(true)}
                       className="text-primary"
                     />
-                    <span className="text-foreground">I need a budget</span>
+                    <span className="text-foreground">Request Budget</span>
                   </label>
                   <label className="flex items-center gap-3 p-4 border border-border rounded-xl bg-background/30 hover:bg-background/50 transition-all duration-200 cursor-pointer">
                     <input
@@ -595,7 +600,7 @@ export default function EventRequestForm() {
                       className="text-primary"
                     />
                     <span className="text-foreground">
-                      I don't need a budget
+                      No Budget
                     </span>
                   </label>
                 </div>
