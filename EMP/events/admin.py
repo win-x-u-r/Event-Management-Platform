@@ -31,7 +31,7 @@ class BudgetInline(admin.TabularInline):
 class EventAdmin(admin.ModelAdmin):
     list_display = (
         'name', 'host', 'start_date', 'status', 'category',
-        'department', 'expected_attendees','target_audience'
+        'department','target_audience'
     )
     list_filter = ('status', 'department', 'category')
     search_fields = ('name', 'host', 'department', 'category', 'target_audience')
@@ -85,7 +85,10 @@ class EventAdmin(admin.ModelAdmin):
                     'venue', 'location',
                     'category', 'department',
                     'goals',
-                    'expected_attendees',
+                    'expected_students',
+                    'expected_faculty',
+                    'expected_community',
+                    'expected_others',
                     'target_audience',
                 ]
             }),

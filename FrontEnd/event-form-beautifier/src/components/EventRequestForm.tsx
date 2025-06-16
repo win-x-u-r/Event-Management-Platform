@@ -33,13 +33,16 @@ export default function EventRequestForm() {
   const [endDate, setEndDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
-  const [expectedAttendees, setExpectedAttendees] = useState("");
+  const [expectedStudents, setExpectedStudents] = useState("");
+  const [expectedFaculty, setExpectedFaculty] = useState("");
+  const [expectedCommunity, setExpectedCommunity] = useState("");
+  const [expectedOthers, setExpectedOthers] = useState("");
 
   // Classification
   const [category, setCategory] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
 
-  const API_BASE_URL = "http://172.16.1.100:8000";
+  const API_BASE_URL = "http://172.16.1.31:8000";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -63,7 +66,10 @@ export default function EventRequestForm() {
       category: category,
       department: department,
       goals: goals,
-      expected_attendees: parseInt(expectedAttendees),
+      expected_students: parseInt(expectedStudents),
+      expected_faculty: parseInt(expectedFaculty),
+      expected_community: parseInt(expectedCommunity),
+      expected_others: parseInt(expectedOthers),
       full_name: fullName,
       email: email,
       phone: phone,
@@ -82,7 +88,7 @@ export default function EventRequestForm() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.text();
         console.error("Error submitting Event:", errorData);
         alert("Error submitting Event.");
         setIsSubmitting(false);
@@ -410,19 +416,48 @@ export default function EventRequestForm() {
                 </div>
               </div>
 
+            <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  Expected Number of Attendees *
-                </label>
+                <label className="text-sm font-medium text-foreground">Expected Number of Student Attendees</label>
                 <input
-                  required
-                  value={expectedAttendees}
-                  onChange={(e) => setExpectedAttendees(e.target.value)}
-                  placeholder="Estimated attendance"
                   type="number"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 placeholder:text-muted-foreground"
+                  value={expectedStudents}
+                  onChange={(e) => setExpectedStudents(e.target.value)}
+                  placeholder="e.g., 100"
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                 />
               </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Expected Number of Faculty Attendees</label>
+                <input
+                  type="number"
+                  value={expectedFaculty}
+                  onChange={(e) => setExpectedFaculty(e.target.value)}
+                  placeholder="e.g., 10"
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Expected Number of Community Attendees</label>
+                <input
+                  type="number"
+                  value={expectedCommunity}
+                  onChange={(e) => setExpectedCommunity(e.target.value)}
+                  placeholder="e.g., 15"
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Expected Number of Other Attendees</label>
+                <input
+                  type="number"
+                  value={expectedOthers}
+                  onChange={(e) => setExpectedOthers(e.target.value)}
+                  placeholder="e.g., 5"
+                  className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                />
+              </div>
+            </div>
             </div>
           </div>
 

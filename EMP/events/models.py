@@ -27,7 +27,10 @@ class Event(models.Model):
     category = models.CharField(max_length=100, blank=True)
     department = models.CharField(max_length=100, blank=True)
     goals = models.TextField(blank=True)
-    expected_attendees = models.IntegerField(blank=True, null=True)
+    expected_students = models.IntegerField(blank=True, null=True)
+    expected_faculty = models.IntegerField(blank=True, null=True)
+    expected_community = models.IntegerField(blank=True, null=True)
+    expected_others = models.IntegerField(blank=True, null=True)
     target_audience = models.CharField(max_length=255, blank=True)
 
 
