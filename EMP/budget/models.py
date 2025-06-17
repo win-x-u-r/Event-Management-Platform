@@ -11,3 +11,10 @@ class Budget(models.Model):
 
     def __str__(self):
         return f"{self.item_name} - {self.total_cost}"
+
+    class Meta:
+        permissions = [
+            ("view_budget", "Can view budgets"),
+            ("approve_budget", "Can approve budgets"),
+            ("reject_budget", "Can reject budgets"),
+        ]

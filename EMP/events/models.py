@@ -37,6 +37,15 @@ class Event(models.Model):
     def __str__(self):
         return f"{self.name} ({self.start_date} - {self.end_date})"
 
+    class Meta:
+        permissions = [
+            ("view_own_event", "Can view own events"),
+            ("view_department_events", "Can view events in user's department"),
+            ("view_all_events", "Can view all events in system"),
+            ("approve_event", "Can approve events"),
+            ("reject_event", "Can reject events"),
+        ]
+
 
 class EventTag(models.Model):
     event = models.ForeignKey("events.Event", on_delete=models.CASCADE)

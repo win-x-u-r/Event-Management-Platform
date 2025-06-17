@@ -12,3 +12,11 @@ class Media(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.media_type})"
+
+class Media(models.Model):
+    ...
+    class Meta:
+        permissions = [
+            ("upload_media", "Can upload event media"),
+            ("view_all_media", "Can view all media uploads"),
+        ]

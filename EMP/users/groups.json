@@ -1,0 +1,59 @@
+[
+  {
+    "name": "Event Creator",
+    "description": "Normal users who create events and manage their own submissions.",
+    "permissions": [
+      "events.add_event",
+      "events.change_event",
+      "events.view_own_event",
+      "media.upload_media",
+      "attendance.record_attendance"
+    ]
+  },
+  {
+    "name": "Department Chair",
+    "description": "Admins who can approve/reject events within their department.",
+    "permissions": [
+      "events.view_department_events",
+      "events.approve_event",
+      "events.reject_event"
+    ]
+  },
+  {
+    "name": "Treasurer",
+    "description": "Admins who can approve/reject budgets for any event.",
+    "permissions": [
+      "budget.view_budget",
+      "budget.approve_budget",
+      "budget.reject_budget"
+    ]
+  },
+  {
+    "name": "Super Admin",
+    "description": "Admins with full access to the system. Can assign roles and view all records.",
+    "permissions": [
+      "users.manage_admin_roles",
+      "events.view_all_events",
+      "budget.view_budget",
+      "budget.approve_budget",
+      "budget.reject_budget",
+      "events.approve_event",
+      "events.reject_event",
+      "events.view_department_events",
+      "users.view_user",
+      "users.change_user",
+      "media.view_all_media",
+      "attendance.view_all_attendance"
+    ]
+  },
+  {
+    "name": "Staff Viewer",
+    "description": "Optional role for support staff to view event history, but not modify anything.",
+    "permissions": [
+      "events.view_all_events",
+      "budget.view_budget",
+      "media.view_all_media",
+      "attendance.view_all_attendance"
+    ]
+  }
+]
