@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Calendar,
   Clock,
@@ -37,6 +37,7 @@ export default function EventRequestForm() {
   const [expectedFaculty, setExpectedFaculty] = useState("");
   const [expectedCommunity, setExpectedCommunity] = useState("");
   const [expectedOthers, setExpectedOthers] = useState("");
+  const [totalExpected, setTotalExpected] = useState(0);
 
   // Classification
   const [category, setCategory] = useState("");
@@ -49,11 +50,22 @@ export default function EventRequestForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
+    useEffect(() => {
+    const sum =
+      Number(expectedStudents) +
+      Number(expectedFaculty) +
+      Number(expectedCommunity) +
+      Number(expectedOthers);
+    setTotalExpected(sum);
+  }, [expectedStudents, expectedFaculty, expectedCommunity, expectedOthers]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     setIsSubmitting(true); // Disable button
     setSuccessMessage(""); // Clear old message
+
+
 
     const payload = {
       status: "Pending",
@@ -418,52 +430,69 @@ export default function EventRequestForm() {
                   </div>
                 </div>
               </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Expected Number of Student Attendees
+                  </label>
+                  <input
+                    type="number"
+                    value={expectedStudents}
+                    onChange={(e) => setExpectedStudents(e.target.value)}
+                    placeholder="e.g., 100"
+                    className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Expected Number of Faculty Attendees
+                  </label>
+                  <input
+                    type="number"
+                    value={expectedFaculty}
+                    onChange={(e) => setExpectedFaculty(e.target.value)}
+                    placeholder="e.g., 10"
+                    className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Expected Number of Community Attendees
+                  </label>
+                  <input
+                    type="number"
+                    value={expectedCommunity}
+                    onChange={(e) => setExpectedCommunity(e.target.value)}
+                    placeholder="e.g., 15"
+                    className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Expected Number of Other Attendees
+                  </label>
+                  <input
+                    type="number"
+                    value={expectedOthers}
+                    onChange={(e) => setExpectedOthers(e.target.value)}
+                    placeholder="e.g., 5"
+                    className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                  />
+                </div>
+              </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Expected Number of Student Attendees</label>
+              {/* Total Field */}
+              <div className="mt-6 space-y-2">
+                <label className="text-sm font-medium text-foreground">Total Expected Attendees</label>
                 <input
                   type="number"
-                  value={expectedStudents}
-                  onChange={(e) => setExpectedStudents(e.target.value)}
-                  placeholder="e.g., 100"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
+                  value={totalExpected}
+                  readOnly
+                  className="w-full px-4 py-3 rounded-xl border border-muted bg-muted/50 backdrop-blur-sm text-muted-foreground cursor-not-allowed"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Expected Number of Faculty Attendees</label>
-                <input
-                  type="number"
-                  value={expectedFaculty}
-                  onChange={(e) => setExpectedFaculty(e.target.value)}
-                  placeholder="e.g., 10"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Expected Number of Community Attendees</label>
-                <input
-                  type="number"
-                  value={expectedCommunity}
-                  onChange={(e) => setExpectedCommunity(e.target.value)}
-                  placeholder="e.g., 15"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Expected Number of Other Attendees</label>
-                <input
-                  type="number"
-                  value={expectedOthers}
-                  onChange={(e) => setExpectedOthers(e.target.value)}
-                  placeholder="e.g., 5"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
-                />
-              </div>
-            </div>
             </div>
           </div>
-
           {/* Event Classification Section */}
           <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 p-8">
             <div className="flex items-center gap-3 mb-6">
