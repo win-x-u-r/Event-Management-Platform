@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { apiService } from '@/services/api';
 import {
   Calendar,
   Clock,
@@ -61,107 +62,70 @@ export default function EventRequestForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setIsSubmitting(true); // Disable button
     setSuccessMessage(""); // Clear old message
 
 
 
-    const payload = {
-      status: "Pending",
-      name: eventName,
-      start_date: startDate,
-      end_date: endDate,
-      start_time: startTime + ":00",
-      end_time: endTime + ":00",
-      description: description,
-      host: host,
-      venue: venue,
-      location: location,
-      category: category,
-      department: department,
-      goals: goals,
-      expected_students: parseInt(expectedStudents),
-      expected_faculty: parseInt(expectedFaculty),
-      expected_community: parseInt(expectedCommunity),
-      expected_others: parseInt(expectedOthers),
-      full_name: fullName,
-      email: email,
-      phone: phone,
-      target_audience: targetAudience,
-    };
+      const payload = {
+    status: "Pending",
+    name: eventName,
+    start_date: startDate,
+    end_date: endDate,
+    start_time: startTime + ":00",
+    end_time: endTime + ":00",
+    description,
+    host,
+    venue,
+    location,
+    category,
+    department,
+    goals,
+    expected_students: parseInt(expectedStudents),
+    expected_faculty: parseInt(expectedFaculty),
+    expected_community: parseInt(expectedCommunity),
+    expected_others: parseInt(expectedOthers),
+    full_name: fullName,
+    email,
+    phone,
+    target_audience: targetAudience,
+  };
 
     console.log("Submitting Event payload:", payload);
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/events/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+ try {
+    const eventData = await apiService.createEvent(payload);
+    const eventId = eventData.id;
+    console.log("✅ Event created:", eventData);
 
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error("Error submitting Event:", errorData);
-        alert("Error submitting Event.");
-        setIsSubmitting(false);
-        return;
-      }
+    for (const item of items) {
+      if (
+        item.name.trim() === "" &&
+        item.quantity === "" &&
+        item.price === "" &&
+        item.totalPrice === ""
+      ) continue;
 
-      const eventData = await response.json();
-      const eventId = eventData.id;
-      console.log("Event created with ID:", eventId);
+      const budgetPayload = {
+        item_name: item.name,
+        item_quantity: parseInt(item.quantity),
+        item_cost: parseFloat(item.price),
+        total_cost: parseFloat(item.totalPrice),
+        budget_status: "Pending",
+        event: eventId,
+      };
 
-      // Submit Budget items
-      for (const item of items) {
-        if (
-          item.name.trim() === "" &&
-          item.quantity === "" &&
-          item.price === "" &&
-          item.totalPrice === ""
-        ) {
-          console.log("Skipping empty budget item");
-          continue;
-        }
-
-        const budgetPayload = {
-          item_name: item.name,
-          item_quantity: parseInt(item.quantity),
-          item_cost: parseFloat(item.price),
-          total_cost: parseFloat(item.totalPrice),
-          budget_status: "Pending",
-          event: eventId,
-        };
-
-        console.log("Submitting Budget item:", budgetPayload);
-
-        const budgetResponse = await fetch(`${API_BASE_URL}/api/budgets/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(budgetPayload),
-        });
-
-        if (!budgetResponse.ok) {
-          const budgetErrorData = await budgetResponse.json();
-          console.error("Error submitting Budget item:", budgetErrorData);
-          alert("Error submitting one or more Budget items. Check console.");
-        }
-      }
-
-      // Success
-      setSuccessMessage("Event and Budget items submitted successfully!");
-      console.log("Event and Budget items submitted successfully!");
-    } catch (error) {
-      console.error("Network error submitting Event and Budget:", error);
-      alert("Network error. Check console.");
-    } finally {
-      setIsSubmitting(false); // Re-enable button
+      await apiService.createBudget(budgetPayload);
     }
-  };
+
+    setSuccessMessage("Event and Budget items submitted successfully!");
+  } catch (error) {
+    console.error("❌ Submission error:", error);
+    alert("Submission failed. Check console.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const handleAddItem = () => {
     setItems([...items, { name: "", quantity: "", price: "", totalPrice: "" }]);
