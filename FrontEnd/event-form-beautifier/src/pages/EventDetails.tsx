@@ -32,14 +32,14 @@ type Event = {
   host: string;
   description: string;
   goals: string;
-  expected_students: number;
-  expected_faculty: number;
-  expected_community: number;
-  expected_others: number;
-  full_name: string;
-  email: string;
-  phone: string;
-  target_audience: string;
+  expected_students?: number;
+  expected_faculty?: number;
+  expected_community?: number;
+  expected_others?: number;
+  full_name?: string;
+  email?: string;
+  phone?: string;
+  target_audience?: string;
   status: string;
 };
 
@@ -77,7 +77,7 @@ const EventDetails = () => {
         const newMedia = {
           id: Date.now() + Math.random(),
           name: file.name,
-          type: file.type.startsWith('image/') ? 'image' : 'video',
+          type: file.type.startsWith('image/') ? 'image' as const : 'video' as const,
           url: URL.createObjectURL(file)
         };
         setUploadedMedia(prev => [...prev, newMedia]);
