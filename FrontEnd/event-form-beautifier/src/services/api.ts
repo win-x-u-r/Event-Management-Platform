@@ -25,6 +25,9 @@ export interface Event {
   department: string;
   goals: string;
   expected_attendees: number;
+    creator?: {
+    email: string;
+  };
 }
 
 export interface Budget {

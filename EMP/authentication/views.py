@@ -39,6 +39,8 @@ class OTPLoginView(APIView):
             return Response({"detail": "Invalid OTP"}, status=status.HTTP_401_UNAUTHORIZED)
 
         refresh = RefreshToken.for_user(user)
+        profile = getattr(user, "userprofile", None)
+
         return Response({
             "access": str(refresh.access_token),
             "refresh": str(refresh),
@@ -46,8 +48,8 @@ class OTPLoginView(APIView):
                 "id": user.id,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
-                "department": user.department,
                 "email": user.email,
-                "phone": user.phone,
+                "department": profile.department if profile else "",
+                "phone": profile.phone if profile else "",
             }
         }, status=status.HTTP_200_OK)
