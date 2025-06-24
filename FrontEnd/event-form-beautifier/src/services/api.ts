@@ -1,5 +1,5 @@
-
 export const API_BASE_URL = "http://172.16.1.103:8000/api"; // or localhost
+
 export interface User {
   id: number;
   first_name: string;
@@ -56,24 +56,37 @@ class ApiService {
     };
   }
 
-  async login(email: string, password: string) {
-    const response = await fetch(`${API_BASE_URL}/auth/login/`, {
+  async loginWithEmail(email: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/auth/otp/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email }),
     });
 
-    if (!response.ok) throw new Error('Login failed');
+    if (!response.ok) throw new Error('Failed to send OTP');
+    return response.json();
+  }
+
+  async verifyOTP(email: string, otp: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/auth/otp/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp }),
+    });
+
+    if (!response.ok) throw new Error('OTP verification failed');
 
     const data = await response.json();
     localStorage.setItem('access_token', data.access);
     localStorage.setItem('refresh_token', data.refresh);
-    return data;
+    localStorage.setItem('current_user', JSON.stringify(data.user));
+    return data.user;
   }
 
   async logout() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('current_user');
   }
 
   async refreshToken() {
@@ -103,12 +116,12 @@ class ApiService {
   }
 
   async getEventById(id: number | string): Promise<Event> {
-  const response = await fetch(`${API_BASE_URL}/events/${id}/`, {
-    headers: this.getAuthHeaders(),
-  });
-  if (!response.ok) throw new Error("Failed to fetch event");
-  return response.json();
-}
+    const response = await fetch(`${API_BASE_URL}/events/${id}/`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error("Failed to fetch event");
+    return response.json();
+  }
 
   async createEvent(eventData: Partial<Event>): Promise<Event> {
     const response = await fetch(`${API_BASE_URL}/events/`, {

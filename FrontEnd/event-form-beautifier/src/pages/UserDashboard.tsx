@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -9,21 +8,28 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Calendar, Plus, Filter, Check, X, Users, Clock, Eye } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const [events, setEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
-  const [userRole] = useState<'admin' | 'user'>('user'); // Replace with real auth context if available
+  const [userRole] = useState<'admin' | 'user'>('user');
 
   useEffect(() => {
     async function fetchEvents() {
       try {
         const data = await apiService.getEvents();
-        setEvents(data);
+        const currentEmail = user?.email || "";
+        const adminEmail = "admin@aurak.ac.ae";
+        const filtered = data.filter(event =>
+          currentEmail === adminEmail || event.creator?.email === currentEmail
+        );
+        setEvents(filtered);
       } catch (err) {
         toast({
           title: "Error loading events",
@@ -33,7 +39,7 @@ const UserDashboard = () => {
       }
     }
     fetchEvents();
-  }, []);
+  }, [user]);
 
   const handleCreateEvent = () => {
     navigate('/events');
@@ -42,31 +48,6 @@ const UserDashboard = () => {
   const handleViewEvent = (eventId: number) => {
     navigate(`/event-details/${eventId}`);
   };
-
-  const handleApproveEvent = (eventId: number, eventName: string) => {
-    toast({
-      title: "Event Approved",
-      description: `${eventName} has been approved successfully.`,
-    });
-  };
-
-  const handleRejectEvent = (eventId: number, eventName: string) => {
-    toast({
-      title: "Event Rejected",
-      description: `${eventName} has been rejected.`,
-      variant: "destructive",
-    });
-  };
-
-  const filteredEvents = events.filter(event => {
-    const matchesSearch = event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         event.host.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || event.category.toLowerCase() === filterCategory.toLowerCase();
-    return matchesSearch && matchesCategory;
-  });
-
-  const userEvents = events.filter(e => e.host === "Hazim Anwar"); // Replace with current user
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -90,7 +71,7 @@ const UserDashboard = () => {
               <div>
                 <CardTitle className="text-3xl font-bold flex items-center">
                   <Calendar className="w-8 h-8 mr-3" />
-                  {userRole === 'admin' ? 'Admin Dashboard' : 'My Events Dashboard'}
+                  {user?.email === 'admin@aurak.ac.ae' ? 'Admin Dashboard' : 'My Events Dashboard'}
                 </CardTitle>
                 <CardDescription className="text-red-100 text-lg">
                   AURAK Event Management Platform
@@ -124,47 +105,6 @@ const UserDashboard = () => {
                 <option value="cultural">Cultural</option>
               </select>
             </div>
-
-            <Table>
-              <TableHeader className="bg-red-100">
-                <TableRow>
-                  <TableHead>Event</TableHead>
-                  <TableHead>Host</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredEvents.map((event) => (
-                  <TableRow key={event.id}>
-                    <TableCell>
-                      <button
-                        onClick={() => handleViewEvent(event.id)}
-                        className="text-red-600 hover:underline font-medium"
-                      >
-                        {event.name}
-                      </button>
-                    </TableCell>
-                    <TableCell>{event.host}</TableCell>
-                    <TableCell>{event.category}</TableCell>
-                    <TableCell>{event.start_date}</TableCell>
-                    <TableCell>{getStatusBadge(event.status)}</TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleViewEvent(event.id)}
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
           </CardContent>
         </Card>
       </div>
