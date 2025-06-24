@@ -20,9 +20,7 @@ const UserDashboard = () => {
   const [filterCategory, setFilterCategory] = useState('all');
   const [userRole] = useState<'admin' | 'user'>('user');
 
-  const privilegedEmails = [
-  "admin@aurak.ac.ae",
-  "viewer1@aurak.ac.ae",  // Add more as needed
+  const privilegedEmails = [ // Add more as needed
   "admin@gmail.com"
   ];
 
