@@ -45,7 +45,7 @@ const UserDashboard = () => {
     fetchEvents();
   }, [user]);
 
-  
+
 
   const handleCreateEvent = () => {
     navigate('/events');
