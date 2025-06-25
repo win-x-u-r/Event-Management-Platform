@@ -6,6 +6,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import User
 from django.core.exceptions import ObjectDoesNotExist
 import json
+from django.core.mail import EmailMessage
+from django.conf import settings
 # Simulated OTP store
 OTP_STORE = {}
 
@@ -32,8 +34,20 @@ class OTPLoginView(APIView):
         if not otp:
             generated_otp = str(random.randint(100000, 999999))
             OTP_STORE[email] = generated_otp
-            print(f"[DEBUG] OTP for {email} is {generated_otp}")
-            return Response({"detail": f"OTP sent to {email} (check console)"}, status=status.HTTP_200_OK)
+            subject = "Your AURAK Event Platform OTP"
+            message = f"Your OTP is: <strong>{generated_otp}</strong>"
+            email_message = EmailMessage(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                [email]
+            )
+            email_message.content_subtype = "html"  # to enable bold formatting
+            try:
+                email_message.send()
+                return Response({"detail": f"OTP sent to {email}"}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({"detail": f"Failed to send email: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         if OTP_STORE.get(email) != otp:
             return Response({"detail": "Invalid OTP"}, status=status.HTTP_401_UNAUTHORIZED)
