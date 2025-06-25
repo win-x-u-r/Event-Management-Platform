@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
-
+import { API_BASE_URL } from "@/config";
 const Login = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +19,7 @@ const Login = () => {
   setIsLoading(true);
 
   try {
-    const response = await fetch("http://172.16.1.97:8000/api/auth/otp/", {
+    const response = await fetch(`${API_BASE_URL}/api/auth/otp/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

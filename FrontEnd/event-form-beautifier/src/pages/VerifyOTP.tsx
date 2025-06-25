@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Shield, ArrowLeft } from 'lucide-react';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useAuth } from '@/contexts/AuthContext';
+import { API_BASE_URL } from "@/config";
 
 const VerifyOTP = () => {
   const [otp, setOtp] = useState('');
@@ -32,7 +33,7 @@ const VerifyOTP = () => {
   setIsLoading(true);
 
   try {
-    const response = await fetch("http://172.16.1.97:8000/api/auth/otp/", {
+    const response = await fetch(`${API_BASE_URL}/api/auth/otp/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp }),
@@ -65,7 +66,7 @@ const VerifyOTP = () => {
 
   const handleResendOTP = async () => {
   try {
-    await fetch("http://172.16.1.97:8000/api/auth/otp/", {
+    await fetch(`${API_BASE_URL}/api/auth/otp/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email })
