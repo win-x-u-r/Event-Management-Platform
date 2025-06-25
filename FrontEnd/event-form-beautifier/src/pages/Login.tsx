@@ -19,7 +19,7 @@ const Login = () => {
   setIsLoading(true);
 
   try {
-    const response = await fetch("http://172.16.1.103:8000/api/auth/otp/", {
+    const response = await fetch("http://172.16.1.97:8000/api/auth/otp/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
