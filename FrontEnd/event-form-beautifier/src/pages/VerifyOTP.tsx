@@ -52,7 +52,11 @@ const VerifyOTP = () => {
       description: "You have been successfully logged in.",
     });
 
+  if (data.user.role === "admin") {
+    navigate("/admin-dashboard");
+  } else {
     navigate("/dashboard");
+  }
   } catch (error) {
     toast({
       title: "Verification failed",

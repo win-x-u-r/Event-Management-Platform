@@ -40,14 +40,14 @@ const AppRoutes = () => {
       <Route path="/events" element={<Index />} />
       <Route path="/event-details/:id" element={<EventDetails />} />
       <Route path="/admin-dashboard" element={
-        <ProtectedRoute>
+        // <ProtectedRoute>
           <AdminDashboard />
-        </ProtectedRoute>
+        // </ProtectedRoute>
       } />
       <Route path="/host-dashboard" element={
-        <ProtectedRoute>
+        // <ProtectedRoute>
           <HostDashboard />
-        </ProtectedRoute>
+        // {/* </ProtectedRoute> */}
       } />
       <Route path="*" element={<NotFound />} />
     </Routes>
