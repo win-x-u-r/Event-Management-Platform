@@ -78,7 +78,7 @@ const VerifyOTP = () => {
 
     toast({
       title: "OTP Resent!",
-      description: "Check your email again (console for now).",
+      description: "Check your email again.",
     });
   } catch (error) {
     toast({
