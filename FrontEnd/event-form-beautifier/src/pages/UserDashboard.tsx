@@ -21,7 +21,8 @@ const UserDashboard = () => {
   const [userRole] = useState<'admin' | 'user'>('user');
 
   const privilegedEmails = [ // Add more as needed
-  "2023005883@aurak.ac.ae"
+  "2023005883@aurak.ac.ae",
+  "Imad.hoballah@aurak.ac.ae"
   ];
 
   useEffect(() => {
