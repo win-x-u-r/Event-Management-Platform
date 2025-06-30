@@ -25,6 +25,10 @@ export interface Event {
   department: string;
   goals: string;
   expected_attendees: number;
+  expected_students?: number;
+  expected_faculty?: number;
+  expected_community?: number;
+  expected_others?: number;
   creator?: {
     email: string;
   };
