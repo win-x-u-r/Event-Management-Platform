@@ -22,7 +22,8 @@ const UserDashboard = () => {
 
   const privilegedEmails = [ // Add more as needed
   "2023005883@aurak.ac.ae",
-  "Imad.hoballah@aurak.ac.ae"
+  "Imad.hoballah@aurak.ac.ae",
+  "qutaiba.raid@gmail.com"
   ];
 
   useEffect(() => {
