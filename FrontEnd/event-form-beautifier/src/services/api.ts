@@ -222,11 +222,16 @@ async deleteMedia(id: number): Promise<void> {
   }
 
   async getCurrentUser(): Promise<User> {
-    const response = await fetch(`${API_BASE_URL}/api/auth/user/`, {
-      headers: this.getAuthHeaders(),
+    const token = localStorage.getItem("access_token");
+    const response = await fetch(`${API_BASE_URL}/api/auth/me/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
-    if (!response.ok) throw new Error("Failed to fetch current user");
-    return response.json();
+
+    if (!response.ok) throw new Error("Unauthorized");
+    return await response.json();
   }
 }
 

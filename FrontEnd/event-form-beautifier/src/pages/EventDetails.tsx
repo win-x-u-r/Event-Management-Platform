@@ -18,6 +18,14 @@ type Media = {
   url: string;
 };
 
+type Document = {
+  id: number;
+  name: string;
+  type: string;
+  url: string;
+  size: number;
+};
+
 type Event = {
   id: number;
   name: string;
@@ -54,6 +62,8 @@ const EventDetails = () => {
   const [loading, setLoading] = useState(true);
   const [attendanceList, setAttendanceList] = useState<Array<{ id: string, name: string, timestamp: string }>>([]);
   const [scannerValue, setScannerValue] = useState('');
+  const [uploadedDocuments, setUploadedDocuments] = useState<Document[]>([]);
+  const documentInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
   const fetchEvent = async () => {

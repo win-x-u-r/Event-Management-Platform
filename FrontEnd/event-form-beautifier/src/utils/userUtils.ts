@@ -3,12 +3,13 @@ export const privilegedEmails = [
   "2023005883@aurak.ac.ae",
   "Imad.hoballah@aurak.ac.ae",
   "qutaiba.raid@gmail.com",
-  "admin@aurak.ac.ae"
+  "admin@aurak.ac.ae",
+  "hazimabukallub@gmail.com"
 ];
 
 export const normalUserEmails = [
   "lm1006500@gmail.com",
-  "ganajad412@iridales.com"
+  "ganajad412@iridales.com",
 ];
 
 // Department-specific admin mappings

@@ -168,3 +168,4 @@ const UserDashboard = () => {
 };
 
 export default UserDashboard;
+// const data = await apiService.getEvents();

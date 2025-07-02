@@ -30,21 +30,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const storedUser = localStorage.getItem('current_user');
+    const token = localStorage.getItem("access_token");
 
     const bootstrap = async () => {
-      if (token && storedUser) {
-        setUser(JSON.parse(storedUser));
+      if (token) {
         try {
-          const freshUser = await apiService.getCurrentUser();
+          const freshUser = await apiService.getCurrentUser();  // e.g., /api/auth/me/
           setUser(freshUser);
-          localStorage.setItem('current_user', JSON.stringify(freshUser));
-        } catch {
+          // optional: store it again
+          localStorage.setItem("current_user", JSON.stringify(freshUser));
+        } catch (error) {
+          console.error("❌ Token invalid or expired. Logging out.");
           logout();
         }
+      } else {
+        logout(); // ⛔ No token? Force logout
       }
-      setIsLoading(false); // ✅ Done loading only after bootstrap
+
+      setIsLoading(false);
     };
 
     bootstrap();
