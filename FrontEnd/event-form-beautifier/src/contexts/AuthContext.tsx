@@ -4,9 +4,10 @@ import { apiService, User } from '@/services/api';
 interface AuthContextType {
   user: Partial<User> | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
   isAuthenticated: boolean;
+  login: (email: string) => Promise<void>;
+  verifyOtpAndSetUser: (email: string, otp: string) => Promise<void>;
+  logout: () => void;
   setUser: (user: Partial<User> | null) => void;
 }
 
@@ -30,22 +31,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    if (token) {
-      apiService.getCurrentUser()
-        .then(setUser)
-        .catch(() => {
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-        })
-        .finally(() => setIsLoading(false));
-    } else {
-      setIsLoading(false);
-    }
+    const storedUser = localStorage.getItem('current_user');
+
+    const bootstrap = async () => {
+      if (token && storedUser) {
+        setUser(JSON.parse(storedUser));
+        try {
+          const freshUser = await apiService.getCurrentUser();
+          setUser(freshUser);
+          localStorage.setItem('current_user', JSON.stringify(freshUser));
+        } catch {
+          logout();
+        }
+      }
+      setIsLoading(false); // ✅ Done loading only after bootstrap
+    };
+
+    bootstrap();
   }, []);
 
-  const login = async (email: string, password: string) => {
-    await apiService.login(email, password);
-    const userData = await apiService.getCurrentUser();
+  const login = async (email: string) => {
+    await apiService.loginWithEmail(email); // just sends OTP
+  };
+
+  const verifyOtpAndSetUser = async (email: string, otp: string) => {
+    const userData = await apiService.verifyOTP(email, otp); // stores token + user
     setUser(userData);
   };
 
@@ -54,12 +64,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(null);
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     isLoading,
-    login,
-    logout,
     isAuthenticated: !!user,
+    login,
+    verifyOtpAndSetUser,
+    logout,
     setUser
   };
 

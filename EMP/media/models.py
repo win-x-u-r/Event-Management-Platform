@@ -3,7 +3,7 @@ from users.models import User
 from events.models import Event
 
 class Media(models.Model):
-    url = models.TextField()
+    file = models.FileField(upload_to="event_media/", null=True, blank=True, db_column="file_temp")
     media_type = models.CharField(max_length=50)
     name = models.CharField(max_length=100)
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)

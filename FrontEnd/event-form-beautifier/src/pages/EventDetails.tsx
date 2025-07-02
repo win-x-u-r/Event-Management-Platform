@@ -56,40 +56,85 @@ const EventDetails = () => {
   const [scannerValue, setScannerValue] = useState('');
 
   useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const event = await apiService.getEventById(id!);
-        setEventData(event);
-      } catch (error) {
-        console.error("Error fetching event:", error);
-        setEventData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEvent();
-  }, [id]);
+  const fetchEvent = async () => {
+    try {
+      const event = await apiService.getEventById(id!);
+      setEventData(event);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      Array.from(files).forEach((file) => {
-        const newMedia = {
-          id: Date.now() + Math.random(),
-          name: file.name,
-          type: file.type.startsWith('image/') ? 'image' as const : 'video' as const,
-          url: URL.createObjectURL(file)
-        };
-        setUploadedMedia(prev => [...prev, newMedia]);
+      // ✅ Once event is loaded, fetch its media
+      const media = await apiService.getMedia(event.id);
+      const parsedMedia = media.map((m: any) => ({
+        id: m.id,
+        name: m.name,
+        type: m.media_type.startsWith("image") ? "image" : "video",
+        url: m.file, // file field from Django
+      }));
+      setUploadedMedia(parsedMedia);
+    } catch (error) {
+      console.error("Error loading event or media:", error);
+      toast({
+        title: "Load Failed",
+        description: "Failed to load event or media.",
+        variant: "destructive",
       });
-      toast({ title: "Media Uploaded", description: `${files.length} file(s) uploaded.` });
+      setEventData(null);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleRemoveMedia = (id: number) => {
+  fetchEvent();
+}, [id]);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || !eventData) return;
+
+    const uploadedItems: Media[] = [];
+
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("event", String(eventData.id));
+
+      try {
+        const response = await apiService.uploadMedia(formData);
+        uploadedItems.push({
+          id: response.id,
+          name: response.name,
+          type: response.media_type.startsWith("image") ? "image" : "video",
+          url: response.file,  // Django returns full path to media file
+        });
+      } catch (err: any) {
+        toast({
+          title: "Upload failed",
+          description: err.message || "An error occurred while uploading.",
+          variant: "destructive",
+        });
+      }
+    }
+
+    setUploadedMedia(prev => [...prev, ...uploadedItems]);
+
+    toast({
+      title: "Media Uploaded",
+      description: `${uploadedItems.length} file(s) uploaded.`,
+    });
+  };
+
+const handleRemoveMedia = async (id: number) => {
+  try {
+    await apiService.deleteMedia(id); // <-- actually call the backend
     setUploadedMedia(prev => prev.filter(media => media.id !== id));
     toast({ title: "Media Removed", description: "File removed successfully." });
-  };
+  } catch (error) {
+    toast({
+      title: "Error",
+      description: "Failed to delete media.",
+      variant: "destructive",
+    });
+  }
+};
 
   const handleScanAttendance = () => {
     if (scannerValue.trim()) {

@@ -14,7 +14,7 @@ const VerifyOTP = () => {
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast } = useToast(); 
   const { setUser } = useAuth();
 
   const email = location.state?.email || '';

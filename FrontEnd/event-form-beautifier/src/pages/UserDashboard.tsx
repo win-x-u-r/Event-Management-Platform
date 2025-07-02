@@ -13,7 +13,8 @@ import { useAuth } from '@/contexts/AuthContext';
 const UserDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
 
   const [events, setEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,11 +28,11 @@ const UserDashboard = () => {
   ];
 
   useEffect(() => {
+    if (isLoading) return; // ✅ wait for auth check to complete
     async function fetchEvents() {
       try {
         const data = await apiService.getEvents();
         const currentEmail = user?.email || "";
-        const adminEmail = "admin@aurak.ac.ae";
         const filtered = data.filter(event =>
           privilegedEmails.includes(currentEmail) || event.creator?.email === currentEmail
         );
@@ -45,7 +46,8 @@ const UserDashboard = () => {
       }
     }
     fetchEvents();
-  }, [user]);
+  }, [user, isLoading]);
+
 
 
 
@@ -70,6 +72,7 @@ const UserDashboard = () => {
     }
   };
 
+  
   return (
   <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-100 py-8 px-4">
     <div className="max-w-6xl mx-auto">

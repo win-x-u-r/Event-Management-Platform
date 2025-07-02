@@ -1,7 +1,7 @@
 
 export const privilegedEmails = [
   "2023005883@aurak.ac.ae",
-  "Imad.hoballah@aurak.ac.ae", 
+  "Imad.hoballah@aurak.ac.ae",
   "qutaiba.raid@gmail.com",
   "admin@aurak.ac.ae"
 ];
@@ -29,7 +29,8 @@ export const departmentAdmins = {
 // Ultimate authority admins who can view all events
 export const ultimateAdmins = [
   "student.life@aurak.ac.ae",
-  "qutaiba.raid@gmail.com"
+  "qutaiba.raid@gmail.com",
+
 ];
 
 export const isPrivilegedUser = (email: string): boolean => {

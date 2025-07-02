@@ -46,7 +46,8 @@ export interface Budget {
 
 export interface Media {
   id: number;
-  url: string;
+  url: string;       // for your frontend logic
+  file: string;      // actual backend field from Django (FileField)
   media_type: string;
   name: string;
   uploaded_by: number;
@@ -180,15 +181,36 @@ class ApiService {
     if (!response.ok) throw new Error("Failed to fetch media");
     return response.json();
   }
+async deleteMedia(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/media/${id}/`, {
+    method: "DELETE",
+    headers: this.getAuthHeaders(),
+  });
 
-  async createMedia(mediaData: Partial<Media>): Promise<Media> {
+  if (!response.ok) {
+    throw new Error("Failed to delete media");
+  }
+}
+
+
+  async uploadMedia(formData: FormData): Promise<Media> {
+    const token = localStorage.getItem("access_token");
+
     const response = await fetch(`${API_BASE_URL}/api/media/`, {
       method: "POST",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(mediaData),
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+        // No Content-Type! Let browser handle it for FormData
+      },
+      body: formData,
     });
-    if (!response.ok) throw new Error("Failed to create media");
-    return response.json();
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to upload media");
+    }
+
+    return await response.json();
   }
 
   async getUsers(): Promise<User[]> {
