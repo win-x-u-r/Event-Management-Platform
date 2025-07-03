@@ -173,6 +173,7 @@ class ApiService {
 
     if (!response.ok) {
       const error = await response.json();
+      console.error("📄 Document Upload Error:", error);
       throw new Error(error.detail || "Failed to upload document");
     }
 

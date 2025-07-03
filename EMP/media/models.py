@@ -12,3 +12,14 @@ class Media(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.media_type})"
+
+class Document(models.Model):
+    file = models.FileField(upload_to="documents/")
+    name = models.CharField(max_length=255)
+    type = models.CharField(max_length=50, blank=True)
+    size = models.PositiveIntegerField(default=0)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="documents")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
