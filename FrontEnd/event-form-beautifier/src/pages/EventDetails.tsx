@@ -67,13 +67,13 @@ const EventDetails = () => {
   const [uploadedDocuments, setUploadedDocuments] = useState<Document[]>([]);
   const documentInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+useEffect(() => {
   const fetchEvent = async () => {
     try {
       const event = await apiService.getEventById(id!);
       setEventData(event);
 
-      // ✅ Once event is loaded, fetch its media
+      // ✅ Fetch media
       const media = await apiService.getMedia(event.id);
       const parsedMedia = media.map((m: {
         id: number;
@@ -84,14 +84,26 @@ const EventDetails = () => {
         id: m.id,
         name: m.name,
         type: m.media_type.startsWith("image") ? "image" as const : "video" as const,
-        url: m.file, // file field from Django
+        url: m.file,
       }));
       setUploadedMedia(parsedMedia);
+
+      // ✅ Fetch documents
+      const documents = await apiService.getDocuments(event.id);
+      const parsedDocs = documents.map((d: Document) => ({
+        id: d.id,
+        name: d.name,
+        type: d.type,
+        url: d.url,
+        size: d.size,
+      }));
+      setUploadedDocuments(parsedDocs);
+
     } catch (error) {
-      console.error("Error loading event or media:", error);
+      console.error("Error loading event, media, or documents:", error);
       toast({
         title: "Load Failed",
-        description: "Failed to load event or media.",
+        description: "Failed to load event, media, or documents.",
         variant: "destructive",
       });
       setEventData(null);
@@ -102,6 +114,7 @@ const EventDetails = () => {
 
   fetchEvent();
 }, [id, toast]);
+
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
