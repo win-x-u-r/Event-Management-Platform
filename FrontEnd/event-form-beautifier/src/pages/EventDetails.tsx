@@ -8,8 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
   Calendar, MapPin, Users, Clock, Upload, Camera,
-  Scan, ArrowLeft, Download, Eye, Plus, X
+  Scan, ArrowLeft, Download, Eye, Plus, X, FileText, FileSpreadsheet, FilePlus, FileArchive, FileSignature, FileCheck2
 } from 'lucide-react';
+
 
 type Media = {
   id: number;
@@ -73,10 +74,15 @@ const EventDetails = () => {
 
       // ✅ Once event is loaded, fetch its media
       const media = await apiService.getMedia(event.id);
-      const parsedMedia = media.map((m: any) => ({
+      const parsedMedia = media.map((m: {
+        id: number;
+        name: string;
+        media_type: string;
+        file: string;
+      }) => ({
         id: m.id,
         name: m.name,
-        type: m.media_type.startsWith("image") ? "image" : "video",
+        type: m.media_type.startsWith("image") ? "image" as const : "video" as const,
         url: m.file, // file field from Django
       }));
       setUploadedMedia(parsedMedia);
@@ -94,7 +100,7 @@ const EventDetails = () => {
   };
 
   fetchEvent();
-}, [id]);
+}, [id, toast]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -115,10 +121,14 @@ const EventDetails = () => {
           type: response.media_type.startsWith("image") ? "image" : "video",
           url: response.file,  // Django returns full path to media file
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
+        let message = "An error occurred while uploading.";
+        if (err instanceof Error) {
+          message = err.message;
+        }
         toast({
           title: "Upload failed",
-          description: err.message || "An error occurred while uploading.",
+          description: message,
           variant: "destructive",
         });
       }
@@ -144,6 +154,77 @@ const handleRemoveMedia = async (id: number) => {
       variant: "destructive",
     });
   }
+};
+const getDocumentIcon = (mimeType: string) => {
+  if (mimeType.includes("pdf")) return <FileText className="w-5 h-5 text-red-500" />;
+  if (mimeType.includes("word")) return <FileText className="w-5 h-5 text-blue-600" />; // fallback
+  if (mimeType.includes("excel") || mimeType.includes("spreadsheet")) return <FileText className="w-5 h-5 text-green-600" />;
+  if (mimeType.includes("powerpoint") || mimeType.includes("presentation")) return <FileText className="w-5 h-5 text-orange-500" />;
+  if (mimeType.includes("csv")) return <FileText className="w-5 h-5 text-teal-600" />;  return <FileCheck2 className="w-5 h-5 text-gray-500" />;
+};
+  const handleDocumentUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || !eventData) return;
+
+    const uploadedDocs: Document[] = [];
+
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("event", String(eventData.id));
+
+      try {
+        const response = await apiService.uploadDocument(formData);
+          uploadedDocs.push({
+            id: response.id,
+            name: response.name,
+            type: response.type || file.type,     // ✅ Match your defined Document interface
+            url: response.url || '',              // ✅ Match your defined Document interface
+            size: response.size || file.size,
+          });
+      } catch (err: unknown) {
+        let message = "An error occurred while uploading.";
+        if (err instanceof Error) {
+          message = err.message;
+        }
+        toast({
+          title: "Upload failed",
+          description: message,
+          variant: "destructive",
+        });
+      }
+    }
+
+    setUploadedDocuments(prev => [...prev, ...uploadedDocs]);
+
+    toast({
+      title: "Documents Uploaded",
+      description: `${uploadedDocs.length} file(s) uploaded.`,
+    });
+  };
+
+  const handleRemoveDocument = async (id: number) => {
+  try {
+    await apiService.deleteDocument(id);
+    setUploadedDocuments(prev => prev.filter(doc => doc.id !== id));
+    toast({ title: "Document Removed", description: "File removed successfully." });
+  } catch (error) {
+    toast({
+      title: "Error",
+      description: "Failed to delete document.",
+      variant: "destructive",
+    });
+  }
+};
+
+
+
+const formatFileSize = (bytes: number) => {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
   const handleScanAttendance = () => {
@@ -267,6 +348,60 @@ const handleRemoveMedia = async (id: number) => {
           </CardContent>
         </Card>
 
+        {/* Event Documents Card - NEW */}
+        <Card className="shadow-xl border-red-200">
+          <CardHeader className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-t-lg">
+            <CardTitle className="text-xl font-bold flex items-center">
+              <FileText className="w-6 h-6 mr-2" /> Event Documents
+            </CardTitle>
+            <CardDescription className="text-red-100">Upload PDF, Excel, Word, PowerPoint and other documents</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 space-y-4">
+            <div className="border-2 border-dashed border-red-200 rounded-lg p-6 text-center">
+              <FileText className="w-8 h-8 text-red-400 mx-auto mb-2" />
+              <p className="text-gray-600 mb-4">Drop documents here or click to upload</p>
+              <p className="text-sm text-gray-500 mb-4">Supported formats: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT</p>
+              <Button onClick={() => documentInputRef.current?.click()} className="bg-red-600 hover:bg-red-700">
+                <Plus className="w-4 h-4 mr-2" /> Add Documents
+              </Button>
+              <input
+                ref={documentInputRef}
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv"
+                onChange={handleDocumentUpload}
+                className="hidden"
+              />
+            </div>
+ 
+            {uploadedDocuments.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="font-medium">Uploaded Documents ({uploadedDocuments.length}):</h4>
+                <div className="max-h-64 overflow-y-auto space-y-2">
+                  {uploadedDocuments.map((document) => (
+                    <div key={document.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center gap-3">
+                        {getDocumentIcon(document.type)}
+                        <div>
+                          <span className="text-sm font-medium truncate block max-w-xs">{document.name}</span>
+                          <span className="text-xs text-gray-500">{formatFileSize(document.size)}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="outline" onClick={() => window.open(document.url)}>
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleRemoveDocument(document.id)}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
         <Card className="shadow-xl border-red-200">
           <CardHeader className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-t-lg">
             <div className="flex items-center justify-between">

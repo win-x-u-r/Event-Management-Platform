@@ -59,7 +59,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const verifyOtpAndSetUser = async (email: string, otp: string) => {
     const userData = await apiService.verifyOTP(email, otp); // stores token + user
-    setUser(userData);
+    if (userData && !('detail' in userData)) {
+      setUser(userData);
+    } else {
+      setUser(null);
+      // Optionally, handle error here (e.g., show a message)
+      console.error("OTP verification failed:", userData?.detail);
+    }
   };
 
   const logout = () => {

@@ -9,6 +9,15 @@ export interface User {
   phone: string;
 }
 
+export interface Document {
+  id: number;
+  name: string;
+  type: string;
+  url: string;
+  size: number;
+  event: number;
+}
+
 export interface Event {
   id: number;
   name: string;
@@ -64,7 +73,7 @@ class ApiService {
     };
   }
 
-  async loginWithEmail(email: string): Promise<any> {
+  async loginWithEmail(email: string): Promise<{ detail: string }> {
     const response = await fetch(`${API_BASE_URL}/api/auth/otp/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -75,7 +84,7 @@ class ApiService {
     return response.json();
   }
 
-  async verifyOTP(email: string, otp: string): Promise<any> {
+  async verifyOTP(email: string, otp: string): Promise<{detail: string}> {
     const response = await fetch(`${API_BASE_URL}/api/auth/otp/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -148,6 +157,48 @@ class ApiService {
     });
     if (!response.ok) throw new Error("Failed to update event");
     return response.json();
+  }
+
+  async uploadDocument(formData: FormData): Promise<Document> {
+    const token = localStorage.getItem("access_token");
+
+    const response = await fetch(`${API_BASE_URL}/api/documents/`, {
+      method: "POST",
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+        // Let the browser set Content-Type for FormData
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to upload document");
+    }
+
+    return await response.json();
+  }
+
+  async getDocuments(eventId?: number): Promise<Document[]> {
+    const url = eventId
+      ? `${API_BASE_URL}/api/documents/?event=${eventId}`
+      : `${API_BASE_URL}/api/documents/`;
+
+    const response = await fetch(url, {
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch documents");
+    return await response.json();
+  }
+
+  async deleteDocument(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/documents/${id}/`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
+
+    if (!response.ok) throw new Error("Failed to delete document");
   }
 
   async getBudgets(eventId?: number): Promise<Budget[]> {
