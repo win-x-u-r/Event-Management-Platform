@@ -14,26 +14,15 @@ class MediaSerializer(serializers.ModelSerializer):
         validated_data['media_type'] = uploaded_file.content_type
         validated_data['uploaded_by'] = self.context['request'].user
         return super().create(validated_data)
-    
+
+
 class DocumentSerializer(serializers.ModelSerializer):
     url = serializers.FileField(source='file', read_only=True)
 
     class Meta:
         model = Document
         fields = ['id', 'name', 'type', 'size', 'event', 'url']
-        read_only_fields = ['name', 'type', 'size']  # ✅ mark them read-only
-
-    def create(self, validated_data):
-        uploaded_file = self.context['request'].FILES.get('file')
-        validated_data['name'] = uploaded_file.name
-        validated_data['type'] = uploaded_file.content_type
-        validated_data['size'] = uploaded_file.size
-        return super().create(validated_data)
-
-
-    class Meta:
-        model = Document
-        fields = ['id', 'name', 'type', 'size', 'event', 'url']
+        read_only_fields = ['name', 'type', 'size']
 
     def create(self, validated_data):
         uploaded_file = self.context['request'].FILES.get('file')

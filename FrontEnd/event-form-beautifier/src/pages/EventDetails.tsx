@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
   Calendar, MapPin, Users, Clock, Upload, Camera,
-  Scan, ArrowLeft, Download, Eye, Plus, X, FileText, FileSpreadsheet, FilePlus, FileArchive, FileSignature, FileCheck2
+  Scan, ArrowLeft, Download, Eye, Plus, X, FileText,
+  FileSpreadsheet, FilePlus, FileArchive, FileSignature, FileCheck2
 } from 'lucide-react';
 
 
