@@ -152,12 +152,26 @@ class ApiService {
 
   async updateEvent(id: number, eventData: Partial<Event>): Promise<Event> {
     const response = await fetch(`${API_BASE_URL}/api/events/${id}/`, {
-      method: "PUT",
+      method: "PATCH",  // Changed from PUT to PATCH for partial updates
       headers: this.getAuthHeaders(),
       body: JSON.stringify(eventData),
     });
-    if (!response.ok) throw new Error("Failed to update event");
+    
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error("Update event error:", response.status, errorData);
+      throw new Error(`Failed to update event: ${response.status}`);
+    }
+    
     return response.json();
+  }
+
+  async approveEvent(id: number): Promise<Event> {
+    return this.updateEvent(id, { status: 'approved' });
+  }
+
+  async rejectEvent(id: number): Promise<Event> {
+    return this.updateEvent(id, { status: 'rejected' });
   }
 
   async uploadDocument(formData: FormData): Promise<Document> {
@@ -234,17 +248,17 @@ class ApiService {
     if (!response.ok) throw new Error("Failed to fetch media");
     return response.json();
   }
-async deleteMedia(id: number): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/media/${id}/`, {
-    method: "DELETE",
-    headers: this.getAuthHeaders(),
-  });
+  
+  async deleteMedia(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/media/${id}/`, {
+      method: "DELETE",
+      headers: this.getAuthHeaders(),
+    });
 
-  if (!response.ok) {
-    throw new Error("Failed to delete media");
+    if (!response.ok) {
+      throw new Error("Failed to delete media");
+    }
   }
-}
-
 
   async uploadMedia(formData: FormData): Promise<Media> {
     const token = localStorage.getItem("access_token");
