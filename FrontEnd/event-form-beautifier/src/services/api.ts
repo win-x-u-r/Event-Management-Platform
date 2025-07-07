@@ -41,6 +41,7 @@ export interface Event {
   creator?: {
     email: string;
   };
+  target_audience: string;
 }
 
 export interface Budget {

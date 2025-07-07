@@ -402,9 +402,15 @@ const formatFileSize = (bytes: number) => {
                         </div>
                       </div>
                       <div className="flex gap-1">
-                        <Button size="sm" variant="outline" onClick={() => window.open(document.url)}>
-                          <Eye className="w-4 h-4" />
-                        </Button>
+                        <a
+                          href={document.url}
+                          download={document.name}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center px-3 py-2 text-sm font-medium border rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                        >
+                          <Download className="w-4 h-4" />
+                        </a>
                         <Button size="sm" variant="outline" onClick={() => handleRemoveDocument(document.id)}>
                           <X className="w-4 h-4" />
                         </Button>
