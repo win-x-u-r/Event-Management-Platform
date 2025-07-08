@@ -128,6 +128,7 @@ const UserDashboard = () => {
                   <TableHead>Start</TableHead>
                   <TableHead>End</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Documents</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
