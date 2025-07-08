@@ -7,7 +7,7 @@ import { Shield, ArrowLeft } from 'lucide-react';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useAuth } from '@/contexts/AuthContext';
 import { API_BASE_URL } from "@/config";
-import { isPrivilegedUser, isNormalUser, isDepartmentAdmin, isUltimateAdmin } from '@/utils/userUtils';
+import { isPrivilegedUser, isNormalUser, isDepartmentAdmin, isUltimateAdmin, isTreasurer } from '@/utils/userUtils';
 
 const VerifyOTP = () => {
   const [otp, setOtp] = useState('');
@@ -49,27 +49,25 @@ const VerifyOTP = () => {
       localStorage.setItem("refresh_token", data.refresh);
       localStorage.setItem("current_user", JSON.stringify(data.user));
       setUser(data.user);
-      setTimeout(() => {
-        if (isPrivilegedUser(email) || isDepartmentAdmin(email) || isUltimateAdmin(email)) {
-          navigate("/admin-dashboard");
-        } else {
-          navigate("/dashboard");
-        }
-      }, 200);
+      
       toast({
         title: "Success!",
         description: "You have been successfully logged in.",
       });
 
       // Route based on user type
-      if (isPrivilegedUser(email) || isDepartmentAdmin(email) || isUltimateAdmin(email)) {
-        navigate("/admin-dashboard");
-      } else if (isNormalUser(email)) {
-        navigate("/dashboard");
-      } else {
-        // Default route for unrecognized emails
-        navigate("/dashboard");
-      }
+      setTimeout(() => {
+        if (isTreasurer(email)) {
+          navigate("/treasurer-dashboard");
+        } else if (isPrivilegedUser(email) || isDepartmentAdmin(email) || isUltimateAdmin(email)) {
+          navigate("/admin-dashboard");
+        } else if (isNormalUser(email)) {
+          navigate("/dashboard");
+        } else {
+          // Default route for unrecognized emails
+          navigate("/dashboard");
+        }
+      }, 200);
     } catch (error) {
       toast({
         title: "Verification failed",

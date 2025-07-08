@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +10,7 @@ import VerifyOTP from "./pages/VerifyOTP";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import HostDashboard from "./pages/HostDashboard";
+import TreasurerDashboard from "./pages/TreasurerDashboard";
 import EventDetails from "./pages/EventDetails";
 import NotFound from "./pages/NotFound";
 import GuestInvitationForm from "./pages/GuestInvitationForm";
@@ -46,10 +46,11 @@ const AppRoutes = () => {
           <AdminDashboard />
         </ProtectedRoute>
       } />
-      <Route path="/host-dashboard" element={
-        // <ProtectedRoute>
-          <HostDashboard />
-        // {/* </ProtectedRoute> */}
+      <Route path="/host-dashboard" element={<HostDashboard />} />
+      <Route path="/treasurer-dashboard" element={
+        <ProtectedRoute>
+          <TreasurerDashboard />
+        </ProtectedRoute>
       } />
       <Route path="*" element={<NotFound />} />
     </Routes>
