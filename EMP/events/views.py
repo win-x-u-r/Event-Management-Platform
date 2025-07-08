@@ -11,7 +11,18 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
+def normalize_department(dept):
+    return dept.lower().replace('&', 'and').replace('  ', ' ').strip()
 
+DEPARTMENT_ADMINS = {
+    "hazimgamer101@gmail.com": normalize_department("Department of Management"),
+    # Add others as needed
+}
+
+ULTIMATE_ADMINS = [
+    "student.life@aurak.ac.ae",
+    "qutaiba.raid@gmail.com",
+]
 # Optional: Replace with Django Group-based permissions later
 PRIVILEGED_EMAILS = [
     # "2023005883@aurak.ac.ae",
@@ -25,9 +36,22 @@ class EventViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_superuser or user.email in PRIVILEGED_EMAILS:
+        email = user.email.lower().strip()
+        print("User Email:", email)
+        print("Department Admin Of:", DEPARTMENT_ADMINS.get(email))
+        print("Events Returned:", Event.objects.filter(department__icontains=DEPARTMENT_ADMINS.get(email, "")).values_list("name", flat=True))
+
+        if user.is_superuser or email in ULTIMATE_ADMINS or email in PRIVILEGED_EMAILS:
             return Event.objects.all()
+
+        if email in DEPARTMENT_ADMINS:
+            admin_dept = DEPARTMENT_ADMINS[email]
+            return Event.objects.filter(department__isnull=False).filter(
+                department__icontains=admin_dept
+            )
+
         return Event.objects.filter(creator=user)
+
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)

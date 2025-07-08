@@ -12,9 +12,9 @@ export const normalUserEmails = [
   "lm1006500@gmail.com",
   "ganajad412@iridales.com",
   "hazimabukallub@gmail.com"
-  
+
 ];
-const normalizeDepartment = (dept: string): string => {
+export const normalizeDepartment = (dept: string): string => {
   return dept
     .toLowerCase()
     .replace(/&/g, 'and') // replace ampersand with 'and'
@@ -44,8 +44,8 @@ export const departmentAdmins = {
   "placeholder7@aurak.ac.ae": normalizeDepartment("Department of Biotechnology"),
   "placeholder8@aurak.ac.ae": normalizeDepartment("Department of Humanities and Social Sciences"),
   "placeholder9@aurak.ac.ae": normalizeDepartment("Department of Mathematics and Physics"),
-  "placeholder10@aurak.ac.ae": normalizeDepartment("Department of Management"),
-  "hazimgamer101@gmail.com": normalizeDepartment("Department of Accounting and Finance"),
+  "hazimgamer101@gmail.com": normalizeDepartment("Department of Management"),
+  "placeholder11@aurak.ac.ae": normalizeDepartment("Department of Accounting and Finance"),
 };
 
 // Ultimate authority admins who can view all events

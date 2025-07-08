@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import EventViewModal from '@/components/EventViewModal';
 import { Filter, Users, Calendar, Download, Eye } from 'lucide-react';
 import { getDepartmentForAdmin, isUltimateAdmin, getUserRole } from '@/utils/userUtils';
+import { normalizeDepartment } from '@/utils/userUtils';
 
 const AdminDashboard = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -42,41 +43,19 @@ const AdminDashboard = () => {
     console.log('User Email:', userEmail);
     console.log('All Events:', events.map(e => ({ name: e.name, department: e.department })));
 
-    // Filter by department access first
+        // Filter by department access first
     if (!canViewAllEvents && adminDepartment) {
-      // More flexible department matching - check if event department contains admin department or vice versa
+      const adminDeptNormalized = normalizeDepartment(adminDepartment);
+
       filtered = filtered.filter(event => {
-        const eventDept = event.department?.toLowerCase().trim() || '';
-        const adminDept = adminDepartment.toLowerCase().trim();
-        
-        console.log(`Comparing event dept: "${eventDept}" with admin dept: "${adminDept}"`);
-        
-        // Exact match
-        if (eventDept === adminDept) return true;
-        
-        // Check if admin department contains key words from event department
-        if (adminDept.includes('accounting') && eventDept.includes('accounting')) return true;
-        if (adminDept.includes('finance') && eventDept.includes('finance')) return true;
-        if (adminDept.includes('civil') && eventDept.includes('civil')) return true;
-        if (adminDept.includes('chemical') && eventDept.includes('chemical')) return true;
-        if (adminDept.includes('petroleum') && eventDept.includes('petroleum')) return true;
-        if (adminDept.includes('computer') && eventDept.includes('computer')) return true;
-        if (adminDept.includes('electrical') && eventDept.includes('electrical')) return true;
-        if (adminDept.includes('electronic') && eventDept.includes('electronic')) return true;
-        if (adminDept.includes('mechanical') && eventDept.includes('mechanical')) return true;
-        if (adminDept.includes('architecture') && eventDept.includes('architecture')) return true;
-        if (adminDept.includes('biotechnology') && eventDept.includes('biotechnology')) return true;
-        if (adminDept.includes('humanities') && eventDept.includes('humanities')) return true;
-        if (adminDept.includes('social') && eventDept.includes('social')) return true;
-        if (adminDept.includes('mathematics') && eventDept.includes('mathematics')) return true;
-        if (adminDept.includes('physics') && eventDept.includes('physics')) return true;
-        if (adminDept.includes('management') && eventDept.includes('management')) return true;
-        
-        return false;
-      });
-      
-      console.log('Filtered Events for Department:', filtered.map(e => ({ name: e.name, department: e.department })));
+        if (!event.department) return false;
+
+        const eventDeptNormalized = normalizeDepartment(event.department);
+        return eventDeptNormalized === adminDeptNormalized;
+      })
+      console.log("Filtered Events:", filtered.map(e => e.name));
     }
+
 
     if (searchTerm) {
       filtered = filtered.filter(event =>
