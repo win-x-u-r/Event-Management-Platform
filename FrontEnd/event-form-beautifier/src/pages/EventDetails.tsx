@@ -11,6 +11,8 @@ import {
   Scan, ArrowLeft, Download, Eye, Plus, X, FileText,
   FileSpreadsheet, FilePlus, FileArchive, FileSignature, FileCheck2
 } from 'lucide-react';
+import { API_BASE_URL } from "@/config";
+
 
 type Media = {
   id: number;
@@ -57,30 +59,43 @@ const EventDetails = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const documentInputRef = useRef<HTMLInputElement>(null);
-
+  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
   const [uploadedMedia, setUploadedMedia] = useState<Media[]>([]);
   const [eventData, setEventData] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [attendanceList, setAttendanceList] = useState<Array<{ id: string, name: string, timestamp: string }>>([]);
   const [scannerValue, setScannerValue] = useState('');
   const [uploadedDocuments, setUploadedDocuments] = useState<Document[]>([]);
+  const documentInputRef = useRef<HTMLInputElement>(null);
+useEffect(() => {
+  const fetchEvent = async () => {
+    try {
+      const event = await apiService.getEventById(id!);
+      setEventData(event);
+      const presentRes = await fetch(`${API_BASE_URL}/api/attendance/present/${event.id}/`);
+      const presentData = await presentRes.json();
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const event = await apiService.getEventById(id!);
-        setEventData(event);
+      const attendees = presentData.map((a: any) => ({
+        id: a.barcode,
+        name: `${capitalize(a.affiliation)} ${a.first_name} ${a.last_name}`,
+        timestamp: new Date(a.checkin_time).toLocaleString(),
+      }));
 
-        // Fetch media
-        const media = await apiService.getMedia(event.id);
-        const parsedMedia = media.map((m: any) => ({
-          id: m.id,
-          name: m.name,
-          type: m.media_type.startsWith("image") ? "image" : "video",
-          url: m.file,
-        }));
-        setUploadedMedia(parsedMedia);
+      setAttendanceList(attendees);
+      // ✅ Fetch media
+      const media = await apiService.getMedia(event.id);
+      const parsedMedia = media.map((m: {
+        id: number;
+        name: string;
+        media_type: string;
+        file: string;
+      }) => ({
+        id: m.id,
+        name: m.name,
+        type: m.media_type.startsWith("image") ? "image" as const : "video" as const,
+        url: m.file,
+      }));
+      setUploadedMedia(parsedMedia);
 
         // Fetch documents
         const documents = await apiService.getDocuments(event.id);
@@ -264,23 +279,60 @@ const EventDetails = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const handleScanAttendance = () => {
-    if (scannerValue.trim()) {
-      const id = scannerValue.trim();
-      if (attendanceList.find(a => a.id === id)) {
-        toast({ title: "Duplicate", description: "ID already scanned.", variant: "destructive" });
-        return;
-      }
-      const newAttendee = {
-        id,
-        name: `Student ${id}`,
-        timestamp: new Date().toLocaleString()
-      };
-      setAttendanceList(prev => [...prev, newAttendee]);
-      setScannerValue('');
-      toast({ title: "Recorded", description: `${newAttendee.name} marked present.` });
+const handleScanAttendance = async () => {
+  const barcode = scannerValue.trim();
+  if (!barcode) return;
+
+  if (attendanceList.find(a => a.id === barcode)) {
+    toast({ title: "Duplicate", description: "This attendee was already marked present.", variant: "destructive" });
+    setScannerValue('');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/attendance/scan/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ barcode })
+    });
+
+    let data;
+    try {
+      data = await response.json();  // this can fail
+    } catch (jsonErr) {
+      const fallbackText = await response.text();
+      throw new Error(fallbackText || 'Invalid JSON response');
     }
-  };
+
+    if (!response.ok || data.status !== "success") {
+      throw new Error(data.message || 'Scan failed');
+    }
+
+    const attendee = data.attendee;
+    if (!attendee || !attendee.role || !attendee.name) {
+      throw new Error("Incomplete attendee data returned.");
+    }
+
+    const name = `${attendee.role.charAt(0).toUpperCase() + attendee.role.slice(1)} ${attendee.name}`;
+    const timestamp = new Date(attendee.checkin_time).toLocaleString();
+
+    setAttendanceList(prev => [...prev, { id: barcode, name, timestamp }]);
+    toast({ title: "Check-In Successful", description: `${name} marked present.` });
+  } catch (err: unknown) {
+    let message = "Unexpected error occurred";
+    if (err instanceof Error) {
+      message = err.message;
+    }
+    toast({
+      title: "Scan failed",
+      description: message,
+      variant: "destructive"
+    });
+  }
+
+  setScannerValue('');
+};
+
 
   const handleExportAttendance = () => {
     const csvContent = [
