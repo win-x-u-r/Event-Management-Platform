@@ -1,3 +1,4 @@
+
 import { API_BASE_URL } from "@/config";
 
 export interface User {
@@ -276,6 +277,14 @@ class ApiService {
   async createBudget(budgetData: Partial<Budget>): Promise<Budget> {
     const response = await this.request("/api/budgets/", {
       method: "POST",
+      body: JSON.stringify(budgetData),
+    });
+    return response.json();
+  }
+
+  async updateBudget(id: number, budgetData: Partial<Budget>): Promise<Budget> {
+    const response = await this.request(`/api/budgets/${id}/`, {
+      method: "PATCH",
       body: JSON.stringify(budgetData),
     });
     return response.json();

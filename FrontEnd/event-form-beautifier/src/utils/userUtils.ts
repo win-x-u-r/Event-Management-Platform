@@ -1,20 +1,22 @@
-
 export const privilegedEmails = [
   "2023005883@aurak.ac.ae",
   "Imad.hoballah@aurak.ac.ae",
   "qutaiba.raid@gmail.com",
   "admin@aurak.ac.ae",
   "Imadhoballah@gmail.com",
-
 ];
 
 export const normalUserEmails = [
   "lm1006500@gmail.com",
-  "ganajad412@iridales.com",
+  "hitomi7569@iamtile.com",
   "hazimabukallub@gmail.com"
-
 ];
-export const normalizeDepartment = (dept: string): string => {
+
+export const treasurerEmails = [
+  "1hitomi7569@iamtile.com"
+];
+
+const normalizeDepartment = (dept: string): string => {
   return dept
     .toLowerCase()
     .replace(/&/g, 'and') // replace ampersand with 'and'
@@ -52,9 +54,7 @@ export const departmentAdmins = {
 export const ultimateAdmins = [
   "student.life@aurak.ac.ae",
   "qutaiba.raid@gmail.com",
-
 ];
-
 
 export const isPrivilegedUser = (email: string): boolean => {
   return privilegedEmails.includes(email);
@@ -62,6 +62,10 @@ export const isPrivilegedUser = (email: string): boolean => {
 
 export const isNormalUser = (email: string): boolean => {
   return normalUserEmails.includes(email);
+};
+
+export const isTreasurer = (email: string): boolean => {
+  return treasurerEmails.includes(email);
 };
 
 export const isDepartmentAdmin = (email: string): boolean => {
@@ -76,9 +80,10 @@ export const getDepartmentForAdmin = (email: string): string | null => {
   return departmentAdmins[email] || null;
 };
 
-export const getUserRole = (email: string): 'admin' | 'user' | 'department-admin' | 'ultimate-admin' => {
+export const getUserRole = (email: string): 'admin' | 'user' | 'department-admin' | 'ultimate-admin' | 'treasurer' => {
   if (isUltimateAdmin(email)) return 'ultimate-admin';
   if (isDepartmentAdmin(email)) return 'department-admin';
+  if (isTreasurer(email)) return 'treasurer';
   if (isPrivilegedUser(email)) return 'admin';
   return 'user';
 };

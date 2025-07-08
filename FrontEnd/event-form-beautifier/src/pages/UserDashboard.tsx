@@ -1,13 +1,14 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { apiService } from '@/services/api';
+import { apiService, Budget } from '@/services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Calendar, Plus, Filter, Check, X, Users, Clock, Eye } from 'lucide-react';
+import { Calendar, Plus, Filter, Check, X, Users, Clock, Eye, DollarSign } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const UserDashboard = () => {
@@ -15,8 +16,8 @@ const UserDashboard = () => {
   const { toast } = useToast();
   const { user, isLoading } = useAuth();
 
-
   const [events, setEvents] = useState([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [userRole] = useState<'admin' | 'user'>('user');
@@ -29,27 +30,50 @@ const UserDashboard = () => {
 
   useEffect(() => {
     if (isLoading) return; // ✅ wait for auth check to complete
-    async function fetchEvents() {
+    async function fetchData() {
       try {
-        const data = await apiService.getEvents();
+        const [eventsData, budgetsData] = await Promise.all([
+          apiService.getEvents(),
+          apiService.getBudgets()
+        ]);
+        
         const currentEmail = user?.email || "";
-        const filtered = data.filter(event =>
+        const filtered = eventsData.filter(event =>
           privilegedEmails.includes(currentEmail) || event.creator?.email === currentEmail
         );
         setEvents(filtered);
+        setBudgets(budgetsData);
       } catch (err) {
         toast({
-          title: "Error loading events",
+          title: "Error loading data",
           description: err.message,
           variant: "destructive",
         });
       }
     }
-    fetchEvents();
+    fetchData();
   }, [user, isLoading]);
 
-
-
+  const getBudgetStatus = (eventId: number) => {
+    const eventBudgets = budgets.filter(budget => budget.event === eventId);
+    if (eventBudgets.length === 0) return null;
+    
+    const hasGranted = eventBudgets.some(budget => budget.budget_status.toLowerCase() === 'granted');
+    const hasDenied = eventBudgets.some(budget => budget.budget_status.toLowerCase() === 'denied');
+    const hasPending = eventBudgets.some(budget => budget.budget_status.toLowerCase() === 'pending');
+    
+    if (hasGranted && !hasDenied && !hasPending) {
+      return { status: 'approved', text: 'Budget Approved', color: 'bg-green-100 text-green-800' };
+    }
+    if (hasDenied) {
+      return { status: 'denied', text: 'Budget Denied', color: 'bg-red-100 text-red-800' };
+    }
+    if (hasPending) {
+      return { status: 'pending', text: 'Budget Pending', color: 'bg-yellow-100 text-yellow-800' };
+    }
+    
+    return null;
+  };
 
   const handleCreateEvent = () => {
     navigate('/events');
@@ -116,7 +140,7 @@ const UserDashboard = () => {
         </CardHeader>
 
         <CardContent className="p-8">
-          {/* ✅ Move search bar here */}
+          {/* Search bar */}
           <div className="mb-6 flex flex-col sm:flex-row gap-4">
             <Input
               placeholder="Search events..."
@@ -136,7 +160,7 @@ const UserDashboard = () => {
             </select>
           </div>
 
-          {/* ✅ Then render the table */}
+          {/* Events table */}
           {events.length > 0 ? (
             <Table className="mt-6">
               <TableHeader>
@@ -144,7 +168,8 @@ const UserDashboard = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Start</TableHead>
                   <TableHead>End</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>Event Status</TableHead>
+                  <TableHead>Budget Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -154,30 +179,45 @@ const UserDashboard = () => {
                     event.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
                     (filterCategory === 'all' || event.category.toLowerCase() === filterCategory)
                   )
-                  .map(event => (
-                    <TableRow key={event.id}>
-                      <TableCell>{event.name}</TableCell>
-                      <TableCell>{event.start_date} {event.start_time}</TableCell>
-                      <TableCell>{event.end_date} {event.end_time}</TableCell>
-                      <TableCell>{getStatusBadge(event.status)}</TableCell>
-                      <TableCell className="flex gap-2">
-                        <Button
-                          onClick={() => handleViewEvent(event.id)}
-                          className="bg-red-600 text-white hover:bg-red-700"
-                        >
-                          <Eye className="w-4 h-4 mr-2" />
-                          View
-                        </Button>
-                         <Button
-                              variant="outline"
-                              onClick={() => handleCopyLink(event.id)}
-                              className="hover:bg-red-100"
-                            >
-                              Copy Link
-                            </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  .map(event => {
+                    const budgetStatus = getBudgetStatus(event.id);
+                    return (
+                      <TableRow key={event.id}>
+                        <TableCell>{event.name}</TableCell>
+                        <TableCell>{event.start_date} {event.start_time}</TableCell>
+                        <TableCell>{event.end_date} {event.end_time}</TableCell>
+                        <TableCell>{getStatusBadge(event.status)}</TableCell>
+                        <TableCell>
+                          {budgetStatus ? (
+                            <Badge className={budgetStatus.color}>
+                              <DollarSign className="w-3 h-3 mr-1" />
+                              {budgetStatus.text}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-gray-500">
+                              No Budget
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="flex gap-2">
+                          <Button
+                            onClick={() => handleViewEvent(event.id)}
+                            className="bg-red-600 text-white hover:bg-red-700"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            View
+                          </Button>
+                           <Button
+                                variant="outline"
+                                onClick={() => handleCopyLink(event.id)}
+                                className="hover:bg-red-100"
+                              >
+                                Copy Link
+                              </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
               </TableBody>
             </Table>
           ) : (
@@ -192,4 +232,3 @@ const UserDashboard = () => {
 };
 
 export default UserDashboard;
-// const data = await apiService.getEvents();
