@@ -89,6 +89,9 @@ useEffect(() => {
         dietary_restrictions: a.dietary_restrictions,
         special_requests: a.special_requests,
         checkin_time: new Date(a.checkin_time).toLocaleString(),
+        id: a.barcode,
+        name: `${capitalize(a.affiliation)} ${a.first_name} ${a.last_name}`,
+        timestamp: new Date(a.checkin_time).toLocaleString()
       }));
       setAttendanceList(attendees);
 
