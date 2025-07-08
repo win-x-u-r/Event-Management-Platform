@@ -145,7 +145,6 @@ const UserDashboard = () => {
                   <TableHead>Start</TableHead>
                   <TableHead>End</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Documents</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -161,7 +160,7 @@ const UserDashboard = () => {
                       <TableCell>{event.start_date} {event.start_time}</TableCell>
                       <TableCell>{event.end_date} {event.end_time}</TableCell>
                       <TableCell>{getStatusBadge(event.status)}</TableCell>
-                      <TableCell className="flex items-center gap-3">
+                      <TableCell className="flex gap-2">
                         <Button
                           onClick={() => handleViewEvent(event.id)}
                           className="bg-red-600 text-white hover:bg-red-700"

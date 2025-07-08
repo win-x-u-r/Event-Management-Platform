@@ -63,7 +63,7 @@ const EventDetails = () => {
   const [uploadedMedia, setUploadedMedia] = useState<Media[]>([]);
   const [eventData, setEventData] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  const [attendanceList, setAttendanceList] = useState<Array<{ id: string, name: string, timestamp: string }>>([]);
+  const [attendanceList, setAttendanceList] = useState<Array<any>>([]);
   const [scannerValue, setScannerValue] = useState('');
   const [uploadedDocuments, setUploadedDocuments] = useState<Document[]>([]);
   const documentInputRef = useRef<HTMLInputElement>(null);
@@ -76,10 +76,21 @@ useEffect(() => {
       const presentData = await presentRes.json();
 
       const attendees = presentData.map((a: any) => ({
-        id: a.barcode,
-        name: `${capitalize(a.affiliation)} ${a.first_name} ${a.last_name}`,
-        timestamp: new Date(a.checkin_time).toLocaleString(),
+        barcode: a.barcode,
+        aurak_id: a.aurak_id,
+        first_name: a.first_name,
+        last_name: a.last_name,
+        email: a.email,
+        phone_number: a.phone_number,
+        affiliation: a.affiliation,
+        department: a.department,
+        organization: a.organization,
+        position: a.position,
+        dietary_restrictions: a.dietary_restrictions,
+        special_requests: a.special_requests,
+        checkin_time: new Date(a.checkin_time).toLocaleString(),
       }));
+      setAttendanceList(attendees);
 
       setAttendanceList(attendees);
       // ✅ Fetch media
@@ -335,20 +346,48 @@ const handleScanAttendance = async () => {
 
 
   const handleExportAttendance = () => {
-    const csvContent = [
-      ['ID', 'Name', 'Timestamp'],
-      ...attendanceList.map(attendee => [attendee.id, attendee.name, attendee.timestamp])
-    ].map(row => row.join(',')).join('\n');
+  const headers = [
+    'Barcode',
+    'ID',
+    'First Name',
+    'Last Name',
+    'Email',
+    'Phone Number',
+    'Affiliation',
+    'Department/School',
+    'Position/Title',
+    'Dietary Restrictions',
+    'Special Requests',
+    'Check-In Time'
+  ];
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${eventData?.name}_attendance.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+const rows = attendanceList.map(a => [
+    a.barcode || '',
+    a.aurak_id || '',
+    a.first_name || '',
+    a.last_name || '',
+    a.email || '',
+    a.phone_number || '',
+    capitalize(a.affiliation || ''),
+    a.department || a.organization || '',
+    a.position || '',
+    a.dietary_restrictions || '',
+    a.special_requests || '',
+    a.checkin_time || ''
+  ]);
 
+  const csvContent = [headers, ...rows].map(row => row.map(cell =>
+    `"${String(cell).replace(/"/g, '""')}"`  // Escape quotes
+  ).join(',')).join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${eventData?.name}_attendance.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved': return <Badge className="bg-green-100 text-green-800">Approved</Badge>;
