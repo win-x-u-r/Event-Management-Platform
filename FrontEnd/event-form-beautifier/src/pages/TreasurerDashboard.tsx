@@ -244,11 +244,11 @@ const TreasurerDashboard = () => {
                           </div>
                           <div>
                             <span className="font-medium text-gray-700">Unit Cost:</span>
-                            <span className="ml-2">${budget.item_cost}</span>
+                            <span className="ml-2">AED {budget.item_cost}</span>
                           </div>
                           <div>
                             <span className="font-medium text-gray-700">Total Cost:</span>
-                            <span className="ml-2 font-semibold">${budget.total_cost}</span>
+                            <span className="ml-2 font-semibold">AED {budget.total_cost}</span>
                           </div>
                         </div>
                       </div>
