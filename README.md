@@ -478,7 +478,7 @@ This project is developed for AURAK internal use.
 
 For questions, issues, or feature requests:
 
-- 📧 Email: support@aurak.ac.ae
+- 📧 Email: 2023005883@aurak.ac.ae
 - 📝 Issues: [GitHub Issues](https://github.com/win-x-u-r/Event-Management-Platform/issues)
 - 📚 Documentation: See `/Documentation` folder
 
@@ -491,3 +491,4 @@ For questions, issues, or feature requests:
 Made with ❤️ by AURAK Students
 
 </div>
+
